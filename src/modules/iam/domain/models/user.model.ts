@@ -2,12 +2,12 @@ export interface User {
     id: number;
     username: string;
     fullName: string;
-    role: string;
+    role: UserRole;
 }
 
 export interface AuthenticatedUser extends User {
     token: string;
-    roles: string;
+    roles: UserRole[];
 } 
 
 export enum UserRole {
