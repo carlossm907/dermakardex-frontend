@@ -16,7 +16,7 @@ export interface SignUpRequest {
 export interface AuthenticatedUserResponse {
     id: number;
     fullName: string;
-    userame: string;
+    username: string;
     roles: UserRole[];
     token: string;
 }
