@@ -6,6 +6,9 @@ import {
 } from "../services/auth.service";
 import { create } from "zustand";
 
+const token = localStorage.getItem("token");
+const storedUser = authService.getStoredUser();
+
 interface AuthState {
   user: AuthenticatedUser | null;
   isAuthenticated: boolean;
@@ -20,8 +23,8 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  isAuthenticated: false,
+  user: storedUser,
+  isAuthenticated: !!token,
   isLoading: false,
   error: null,
 
