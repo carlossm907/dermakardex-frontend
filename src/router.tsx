@@ -14,8 +14,8 @@ export const AppRouter = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
         </Route>
         {/* Redirección por defecto */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
