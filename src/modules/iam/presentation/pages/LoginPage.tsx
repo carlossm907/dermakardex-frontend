@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../application/stores/auth.store";
 import { useState } from "react";
 import { Card } from "../../../../shared/components/ui/Card";
@@ -112,18 +112,6 @@ export const LoginPage: React.FC = () => {
               Iniciar Sesión
             </Button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-neutral-600">
-              ¿No tienes una cuenta?{" "}
-              <Link
-                to="/register"
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                Regístrate aquí
-              </Link>
-            </p>
-          </div>
         </Card>
 
         <p className="text-center text-xs text-neutral-500 mt-8">
