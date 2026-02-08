@@ -32,6 +32,20 @@ export interface CreateProductData {
   isActive: boolean;
 }
 
+export interface UpdateProductData {
+  name: string;
+  brandId: number;
+  laboratoryId: number;
+  categoryId: number;
+  supplierId: number;
+  presentation: string;
+  purchasePrice: number;
+  salePrice: number;
+  maxDiscountAmount: number;
+  stockAlertThreshold: number;
+  isActive: boolean;
+}
+
 export interface ApplyDiscountData {
   type: DiscountType;
   value: number;
