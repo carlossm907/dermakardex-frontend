@@ -28,6 +28,7 @@ export interface CreateProductData {
   purchasePrice: number;
   salePrice: number;
   maxDiscountAmount: number;
+  initialStock: number;
   stockAlertThreshold: number;
   isActive: boolean;
 }
@@ -38,7 +39,7 @@ export interface UpdateProductData {
   laboratoryId: number;
   categoryId: number;
   supplierId: number;
-  presentation: string;
+  presentation: ProductPresentation;
   purchasePrice: number;
   salePrice: number;
   maxDiscountAmount: number;
