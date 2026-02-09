@@ -1,7 +1,7 @@
 import type { Product } from "../../domain/models/product.model";
 import type { ProductResponse } from "../api/products.api";
 
-export const productMaper = {
+export const productMapper = {
   toDomain: (response: ProductResponse): Product => ({
     id: response.id,
     name: response.name,
@@ -21,6 +21,6 @@ export const productMaper = {
   }),
 
   toDomainList: (responses: ProductResponse[]): Product[] => {
-    return responses.map(productMaper.toDomain);
+    return responses.map(productMapper.toDomain);
   },
 };
