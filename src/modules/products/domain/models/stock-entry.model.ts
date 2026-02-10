@@ -7,7 +7,7 @@ export interface StockEntry {
   reason: string;
   registeredByUserId: number;
   registeredByUserName: string;
-  registeredAt: string;
+  registeredAt: Date;
 }
 
 export interface CreateStockEntryData {
