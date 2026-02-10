@@ -17,6 +17,7 @@ export const productMapper = {
     discountType: response.discountType,
     discountValue: response.discountValue,
     stock: response.stock,
+    stockAlertThreshold: response.stockAlertThreshold,
     isActive: response.isActive,
   }),
 

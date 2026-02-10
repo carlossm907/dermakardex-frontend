@@ -17,6 +17,7 @@ export interface ProductResponse {
   discountType: DiscountType;
   discountValue: number;
   stock: number;
+  stockAlertThreshold: number;
   isActive: boolean;
 }
 
