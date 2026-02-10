@@ -57,3 +57,20 @@ export enum ProductPresentation {
   HALFDOZEN = "HALFDOZEN",
   DOZEN = "DOZEN",
 }
+
+export enum StockStatus {
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  OK = "OK",
+}
+
+export const getStockStatus = (
+  stock: number,
+  threshold: number,
+): StockStatus => {
+  const ratio = stock / threshold;
+
+  if (ratio <= 0.25) return StockStatus.LOW;
+  if (ratio <= 0.5) return StockStatus.MEDIUM;
+  return StockStatus.OK;
+};
