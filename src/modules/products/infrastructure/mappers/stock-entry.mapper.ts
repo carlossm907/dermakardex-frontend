@@ -11,7 +11,7 @@ export const stockEntryMapper = {
     reason: response.reason,
     registeredByUserId: response.registeredByUserId,
     registeredByUserName: response.registeredByUserName,
-    registeredAt: response.registeredAt,
+    registeredAt: new Date(response.registeredAt),
   }),
 
   toDomainList: (responses: StockEntryResponse[]): StockEntry[] => {
