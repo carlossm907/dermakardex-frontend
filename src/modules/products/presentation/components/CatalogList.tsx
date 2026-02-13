@@ -10,8 +10,8 @@ interface CatalogItem {
 interface CatalogListProps {
   items: CatalogItem[];
   title: string;
-  onAdd: (name: string) => Promise<void>;
-  onEdit: (id: number, name: string) => Promise<void>;
+  onAdd: (name: string) => Promise<CatalogItem>;
+  onEdit: (id: number, name: string) => Promise<CatalogItem>;
   onDelete: (id: number) => Promise<void>;
   isLoading: boolean;
   className?: string;
