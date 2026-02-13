@@ -54,9 +54,9 @@ export interface ApplyDiscountData {
 }
 
 export enum ProductPresentation {
-  UNITS = "UNITS",
-  HALFDOZEN = "HALFDOZEN",
-  DOZEN = "DOZEN",
+  Units = "Units",
+  Halfdozen = "Halfdozen",
+  Dozen = "Dozen",
 }
 
 export enum StockStatus {
