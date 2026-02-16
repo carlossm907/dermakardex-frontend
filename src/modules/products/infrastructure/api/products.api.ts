@@ -168,7 +168,7 @@ export const productsApi = {
   },
 
   removeDiscountFromAllProducts: async (): Promise<void> => {
-    await apiClient.delete("/products/discount/all");
+    await apiClient.delete("/products/discounts/all");
   },
 
   getProductStockEntries: async (
