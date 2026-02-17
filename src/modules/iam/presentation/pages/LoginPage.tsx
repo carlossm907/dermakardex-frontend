@@ -49,7 +49,7 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login(formData);
-      navigate("/dashboard");
+      navigate("/products");
     } catch {
       // El error ya fue manejado por el store
     }
