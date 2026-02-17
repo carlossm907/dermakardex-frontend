@@ -1,12 +1,17 @@
+import React from "react";
+import { Navigate } from "react-router-dom";
 import { useAuthStore } from "@/modules/iam/application/stores/auth.store";
-import { Navigate, Outlet } from "react-router-dom";
 
-export const ProtectedRoute: React.FC = () => {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />;
+  return <>{children}</>;
 };
