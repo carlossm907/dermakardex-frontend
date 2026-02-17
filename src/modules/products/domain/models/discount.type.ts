@@ -1,7 +1,7 @@
 export enum DiscountType {
-  NONE = "NONE",
-  AMOUNT = "AMOUNT",
-  PERCENTAGE = "PERCENTAGE",
+  NONE = 0,
+  AMOUNT = 1,
+  PERCENTAGE = 2,
 }
 
 export interface Discount {
