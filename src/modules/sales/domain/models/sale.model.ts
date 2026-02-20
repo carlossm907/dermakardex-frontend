@@ -7,20 +7,22 @@ export interface Sale {
   ticketNumber: string;
   customerDni: string;
   customerFullName: string;
+  sellerUserId: number;
+  sellerFullName: string;
   saleDate: string;
   saleTime: string;
-  observation: string;
+  observation: string | null;
   total: number;
   status: SaleStatus;
   items: SaleItem[];
-  payments: SalePayment;
+  payments: SalePayment[];
 }
 
 export interface CreateSaleData {
   customerDni: string;
   observation: string;
   items: CreateSaleItemData[];
-  payments: CreateSalePaymentData;
+  payments: CreateSalePaymentData[];
 }
 
 export interface SaleListItem {
