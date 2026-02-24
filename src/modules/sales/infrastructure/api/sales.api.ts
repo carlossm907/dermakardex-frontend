@@ -104,7 +104,7 @@ export const salesApi = {
     month: number,
   ): Promise<SaleResponse[]> => {
     const response = await apiClient.get<SaleResponse[]>(
-      `/sales/month/${year}${month}`,
+      `/sales/month/${year}/${month}`,
     );
     return response.data;
   },
