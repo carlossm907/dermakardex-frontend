@@ -7,6 +7,8 @@ import { ProductFormPage } from "./modules/products/presentation/pages/ProductFo
 import { CatalogManagementPage } from "./modules/products/presentation/pages/CatalogManagementPage";
 import { StockEntriesPage } from "./modules/products/presentation/pages/StockEntriesPage";
 import { DiscountsPage } from "./modules/products/presentation/pages/DiscountsPage";
+import { SaleListPage } from "./modules/sales/presentation/pages/SalesListPage";
+import { SaleFormPage } from "./modules/sales/presentation/pages/SaleFormPage";
 
 export const router = createBrowserRouter([
   {
@@ -80,6 +82,14 @@ export const router = createBrowserRouter([
       {
         path: "products/discounts",
         element: <DiscountsPage />,
+      },
+      {
+        path: "sales",
+        element: <SaleListPage />,
+      },
+      {
+        path: "sales/new",
+        element: <SaleFormPage />,
       },
     ],
   },
