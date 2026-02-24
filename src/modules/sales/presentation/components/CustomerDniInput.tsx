@@ -8,7 +8,7 @@ interface CustomerDniInputProps {
   onCustomerResolved: (fullName: string) => void;
   onCustomerCleared: () => void;
   error?: string;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
 type DniState =
