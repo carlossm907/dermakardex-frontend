@@ -1,5 +1,5 @@
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "danger";
   isLoading?: boolean;
   children: React.ReactNode;
 }
@@ -12,7 +12,12 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClass = variant === "primary" ? "btn-primary" : "btn-secondary";
+  const baseClass =
+    variant === "primary"
+      ? "btn-primary"
+      : variant === "secondary"
+        ? "btn-secondary"
+        : "btn-danger";
 
   return (
     <button
