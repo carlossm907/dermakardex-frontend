@@ -9,6 +9,8 @@ import { StockEntriesPage } from "./modules/products/presentation/pages/StockEnt
 import { DiscountsPage } from "./modules/products/presentation/pages/DiscountsPage";
 import { SaleListPage } from "./modules/sales/presentation/pages/SalesListPage";
 import { SaleFormPage } from "./modules/sales/presentation/pages/SaleFormPage";
+import { SaleDetailPage } from "./modules/sales/presentation/pages/SaleDetailPage";
+import { LowStockPage } from "./modules/products/presentation/pages/LowStockPage";
 
 export const router = createBrowserRouter([
   {
@@ -84,12 +86,20 @@ export const router = createBrowserRouter([
         element: <DiscountsPage />,
       },
       {
+        path: "products/low-stock",
+        element: <LowStockPage />,
+      },
+      {
         path: "sales",
         element: <SaleListPage />,
       },
       {
         path: "sales/new",
         element: <SaleFormPage />,
+      },
+      {
+        path: "sales/:id",
+        element: <SaleDetailPage />,
       },
     ],
   },
