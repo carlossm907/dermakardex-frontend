@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useProductStore } from "../../application/stores/product.store";
 import { useCatalogStore } from "../../application/stores/catalog.store";
 import { useEffect, useState } from "react";
@@ -11,8 +10,6 @@ import { Input } from "@/shared/components/ui/Input";
 type DiscountMode = "single" | "multiple" | "all";
 
 export const DiscountsPage: React.FC = () => {
-  const navigate = useNavigate();
-
   const {
     products,
     isLoading,
@@ -175,56 +172,38 @@ export const DiscountsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-gradient-to-r from-white to-neutral-50 border-b border-neutral-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate("/products")}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <div>
-                <h1 className="text-3xl font-bold">Gestión de Descuentos</h1>
-                <p className="text-red-100 mt-1">
-                  Aplica descuentos masivos a tus productos
-                </p>
-              </div>
+            <div>
+              <h1 className="text-3xl font-bold text-neutral-900">
+                Gestión de Descuentos
+              </h1>
             </div>
-            {productsWithDiscount.length > 0 && (
-              <Button
-                onClick={handleRemoveDiscounts}
-                className="bg-white text-red-600 hover:bg-red-50"
-              >
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            <div className="flex gap-3">
+              {productsWithDiscount.length > 0 && (
+                <Button
+                  onClick={handleRemoveDiscounts}
+                  variant="danger"
+                  className="flex items-center gap-2"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-                Eliminar Todos los Descuentos
-              </Button>
-            )}
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                  Eliminar Todos los Descuentos
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
