@@ -160,30 +160,13 @@ export const SaleFormPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white">
+      <div className="bg-gradient-to-r from-white to-neutral-50 border-b border-neutral-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/sales")}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold">Punto de Venta</h1>
-              <p className="text-green-100 mt-1">Registra una nueva venta</p>
+              <h1 className="text-3xl font-bold text-neutral-900">
+                Registro de Venta
+              </h1>
             </div>
           </div>
         </div>

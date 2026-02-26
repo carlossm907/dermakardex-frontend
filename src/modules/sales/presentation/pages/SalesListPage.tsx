@@ -6,7 +6,6 @@ import { SaleFilters } from "../components/SaleFilters";
 import { LoadingSpinner } from "@/modules/products/presentation/components/LoadingSpinner";
 import { Card } from "@/shared/components/ui/Card";
 import { EmptyState } from "@/modules/products/presentation/components/EmptyState";
-import { Button } from "@/shared/components/ui/Button";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(
@@ -40,34 +39,12 @@ export const SaleListPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header con gradiente verde */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-gradient-to-r from-white to-neutral-50 border-b border-neutral-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold">Ventas</h1>
-              <p className="text-green-100 mt-1">
-                Gestiona y visualiza todas las transacciones
-              </p>
+              <h1 className="text-3xl font-bold text-neutral-900">Ventas</h1>
             </div>
-            <Button
-              onClick={() => navigate("/sales/new")}
-              className="bg-white text-green-600 hover:bg-green-50"
-            >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Nueva Venta
-            </Button>
           </div>
         </div>
       </div>
