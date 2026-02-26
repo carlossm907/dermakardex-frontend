@@ -102,6 +102,7 @@ export const DashboardLayout: React.FC = () => {
                 <div className="mt-1 ml-4 space-y-1 border-l-2 border-neutral-200 pl-4">
                   <NavLink
                     to="/products"
+                    end
                     className={({ isActive }) =>
                       `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                         isActive
@@ -311,6 +312,7 @@ export const DashboardLayout: React.FC = () => {
 
                   <NavLink
                     to="/sales"
+                    end
                     className={({ isActive }) =>
                       `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                         isActive
