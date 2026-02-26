@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useStockEntryStore } from "../../application/stores/stock-entry.store";
 import { useProductStore } from "../../application/stores/product.store";
 import { StockEntryTable } from "../components/StockEntryTable";
@@ -10,7 +9,6 @@ import { Input } from "@/shared/components/ui/Input";
 import { Card } from "@/shared/components/ui/Card";
 
 export const StockEntriesPage: React.FC = () => {
-  const navigate = useNavigate();
   const { entries, isLoading, fetchAllEntries, createEntry } =
     useStockEntryStore();
   const { products, fetchProducts } = useProductStore();
@@ -119,54 +117,38 @@ export const StockEntriesPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-gradient-to-r from-white to-neutral-50 border-b border-neutral-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate("/products")}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <div>
-                <h1 className="text-3xl font-bold">Entradas de Stock</h1>
-                <p className="text-blue-100 mt-1">
-                  Historial del Kardex de inventario
-                </p>
-              </div>
+            <div>
+              <h1 className="text-3xl font-bold text-neutral-900">
+                Entradas de Stock
+              </h1>
             </div>
-            <Button
-              onClick={() => setShowForm(!showForm)}
-              className="bg-white text-blue-600 hover:bg-blue-50"
-            >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowForm(!showForm)}
+                variant={showForm ? "danger" : "primary"}
+                className="flex items-center gap-2"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              {showForm ? "Cancelar" : "Nueva Entrada"}
-            </Button>
+                {!showForm && (
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                )}
+                {showForm ? "Cancelar" : "Nueva Entrada"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
