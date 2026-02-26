@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useCatalogStore } from "../../application/stores/catalog.store";
 import { CatalogList } from "../components/CatalogList";
 import { Card } from "@/shared/components/ui/Card";
@@ -7,7 +6,6 @@ import { Card } from "@/shared/components/ui/Card";
 type CatalogTab = "brands" | "categories" | "laboratories" | "suppliers";
 
 export const CatalogManagementPage: React.FC = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<CatalogTab>("brands");
 
   const {
@@ -174,80 +172,37 @@ export const CatalogManagementPage: React.FC = () => {
     }
   };
 
-  const getTabDescription = () => {
-    switch (activeTab) {
-      case "brands":
-        return "Gestiona las marcas de tus productos. Estas marcas se usarán al crear nuevos productos.";
-      case "categories":
-        return "Organiza tus productos por categorías para una mejor clasificación.";
-      case "laboratories":
-        return "Administra los laboratorios fabricantes de tus productos farmacéuticos.";
-      case "suppliers":
-        return "Gestiona la información de tus proveedores para el abastecimiento.";
-      default:
-        return "";
-    }
-  };
-
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate("/products")}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
+      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div className="bg-gradient-to-br from-purple-50 to-white border border-neutral-100 shadow-sm rounded-xl">
+          <div className="px-6 py-5">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold">Catálogo de Productos</h1>
-                <p className="text-purple-100 mt-1">
-                  Administra las entidades relacionadas a tus productos
-                </p>
+                <h1 className="text-3xl font-bold text-purple-800">
+                  Catálogo de Productos
+                </h1>
               </div>
-            </div>
-            <div className="hidden md:flex gap-2">
-              {tabs.map((tab) => (
-                <div
-                  key={tab.id}
-                  className="text-center bg-white/10 rounded-lg px-4 py-3 backdrop-blur-sm"
-                >
-                  <div className="text-2xl font-bold">{tab.count}</div>
-                  <div className="text-xs text-purple-100">{tab.label}</div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="bg-white border-b border-neutral-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex gap-1 overflow-x-auto">
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Card className="mb-6 py-2 px-2">
+          <nav className="flex w-full h-full gap-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm whitespace-nowrap transition-all ${
+                className={`flex-1 h-full flex items-center justify-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap transition-all rounded-md ${
                   activeTab === tab.id
-                    ? "border-purple-600 text-purple-600 bg-purple-50"
-                    : "border-transparent text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
+                    ? "text-purple-600 bg-purple-50"
+                    : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
                 }`}
               >
                 {tab.icon}
@@ -264,11 +219,8 @@ export const CatalogManagementPage: React.FC = () => {
               </button>
             ))}
           </nav>
-        </div>
-      </div>
+        </Card>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error Message */}
         {error && (
           <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
@@ -311,35 +263,6 @@ export const CatalogManagementPage: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* Description Card */}
-        <Card className="mb-6 bg-gradient-to-r from-purple-50 to-white border-l-4 border-purple-500">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <svg
-                className="w-6 h-6 text-purple-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-neutral-900">
-                Sobre {tabs.find((t) => t.id === activeTab)?.label}
-              </h3>
-              <p className="text-sm text-neutral-600 mt-1">
-                {getTabDescription()}
-              </p>
-            </div>
-          </div>
-        </Card>
 
         {/* Catalog List */}
         <Card>{renderContent()}</Card>
