@@ -50,6 +50,38 @@ export const DashboardLayout: React.FC = () => {
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto py-4 px-2">
+            {/* Dashboard */}
+            <div className="mb-2">
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) =>
+                  `w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                    isActive
+                      ? "bg-primary-50 text-primary-600"
+                      : "text-neutral-700 hover:bg-neutral-100"
+                  }`
+                }
+              >
+                <svg
+                  className="w-5 h-5 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  />
+                </svg>
+                {isSidebarOpen && (
+                  <span className="font-medium text-sm">Dashboard</span>
+                )}
+              </NavLink>
+            </div>
+
             {/* Productos Section */}
             <div className="mb-2">
               <button
@@ -102,7 +134,6 @@ export const DashboardLayout: React.FC = () => {
                 <div className="mt-1 ml-4 space-y-1 border-l-2 border-neutral-200 pl-4">
                   <NavLink
                     to="/products"
-                    end
                     className={({ isActive }) =>
                       `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                         isActive
@@ -312,7 +343,6 @@ export const DashboardLayout: React.FC = () => {
 
                   <NavLink
                     to="/sales"
-                    end
                     className={({ isActive }) =>
                       `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                         isActive
