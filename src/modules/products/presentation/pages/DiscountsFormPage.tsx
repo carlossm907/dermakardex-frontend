@@ -9,7 +9,7 @@ import { Input } from "@/shared/components/ui/Input";
 
 type DiscountMode = "single" | "multiple" | "all";
 
-export const DiscountsPage: React.FC = () => {
+export const DiscountsFormPage: React.FC = () => {
   const {
     products,
     isLoading,

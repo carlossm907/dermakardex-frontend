@@ -6,7 +6,7 @@ import { ProductsListPage } from "./modules/products/presentation/pages/Products
 import { ProductFormPage } from "./modules/products/presentation/pages/ProductFormPage";
 import { CatalogManagementPage } from "./modules/products/presentation/pages/CatalogManagementPage";
 import { StockEntriesPage } from "./modules/products/presentation/pages/StockEntriesPage";
-import { DiscountsPage } from "./modules/products/presentation/pages/DiscountsPage";
+import { DiscountsFormPage } from "./modules/products/presentation/pages/DiscountsFormPage";
 import { SaleListPage } from "./modules/sales/presentation/pages/SalesListPage";
 import { SaleFormPage } from "./modules/sales/presentation/pages/SaleFormPage";
 import { SaleDetailPage } from "./modules/sales/presentation/pages/SaleDetailPage";
@@ -52,7 +52,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "products/discounts",
-        element: <DiscountsPage />,
+        element: <DiscountsFormPage />,
       },
       {
         path: "products/low-stock",
