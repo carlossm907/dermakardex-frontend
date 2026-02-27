@@ -39,11 +39,13 @@ export const SaleListPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header con gradiente verde */}
-      <div className="bg-gradient-to-r from-white to-neutral-50 border-b border-neutral-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-neutral-900">Ventas</h1>
+      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div className="bg-gradient-to-br from-green-50 to-white border border-neutral-100 shadow-sm rounded-xl">
+          <div className="px-6 py-5">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-green-800">Ventas</h1>
+              </div>
             </div>
           </div>
         </div>
