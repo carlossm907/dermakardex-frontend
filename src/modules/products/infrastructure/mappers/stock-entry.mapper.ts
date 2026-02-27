@@ -5,6 +5,7 @@ export const stockEntryMapper = {
   toDomain: (response: StockEntryResponse): StockEntry => ({
     id: response.id,
     productId: response.productId,
+    productName: response.productName,
     quantity: response.quantity,
     unitPurchasePrice: response.unitPurchasePrice,
     totalInvestment: response.totalInvestment,

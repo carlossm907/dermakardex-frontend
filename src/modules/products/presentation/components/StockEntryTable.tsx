@@ -61,7 +61,7 @@ export const StockEntryTable: React.FC<StockEntryTableProps> = ({
             </th>
             {showProductColumn && (
               <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                Producto ID
+                Producto
               </th>
             )}
             <th className="text-center p-4 text-sm font-semibold text-neutral-700">
@@ -92,7 +92,7 @@ export const StockEntryTable: React.FC<StockEntryTableProps> = ({
               </td>
               {showProductColumn && (
                 <td className="p-4 text-sm text-neutral-600">
-                  #{entry.productId}
+                  {entry.productName}
                 </td>
               )}
               <td className="p-4 text-center">

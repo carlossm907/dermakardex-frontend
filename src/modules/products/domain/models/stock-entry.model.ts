@@ -1,6 +1,7 @@
 export interface StockEntry {
   id: number;
   productId: number;
+  productName: string;
   quantity: number;
   unitPurchasePrice: number;
   totalInvestment: number;
