@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useProductStore } from "../../application/stores/product.store";
 import { useCatalogStore } from "../../application/stores/catalog.store";
 import { useEffect } from "react";
-import { DiscountType } from "../../domain/models/discount.type";
 import { Button } from "@/shared/components/ui/Button";
 import { Card } from "@/shared/components/ui/Card";
 import { ProductSearchBar } from "../components/ProductSearchBar";
@@ -31,13 +30,6 @@ export const ProductsListPage: React.FC = () => {
   };
 
   const displayProducts = products;
-
-  const stats = {
-    total: products.length,
-    active: products.filter((p) => p.isActive).length,
-    withDiscount: products.filter((p) => p.discountType !== DiscountType.NONE)
-      .length,
-  };
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -124,87 +116,6 @@ export const ProductsListPage: React.FC = () => {
             />
           )}
         </Card>
-
-        {/* Cards de estadísticas */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-neutral-600">Total Productos</p>
-                <p className="text-2xl font-bold text-neutral-900 mt-1">
-                  {stats.total}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                  />
-                </svg>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-neutral-600">Activos</p>
-                <p className="text-2xl font-bold text-green-600 mt-1">
-                  {stats.active}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-neutral-600">Con Descuento</p>
-                <p className="text-2xl font-bold text-red-600 mt-1">
-                  {stats.withDiscount}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-red-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                  />
-                </svg>
-              </div>
-            </div>
-          </Card>
-        </div>
       </div>
     </div>
   );
