@@ -2,9 +2,10 @@ import { useProductStore } from "@/modules/products/application/stores/product.s
 import { useStockEntryStore } from "@/modules/products/application/stores/stock-entry.store";
 import { DiscountType } from "@/modules/products/domain/models/discount.type";
 import { useSaleStore } from "@/modules/sales/application/stores/sale.store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../components/ui/Card";
+import { salesApi } from "@/modules/sales/infrastructure/api/sales.api";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(
@@ -18,6 +19,8 @@ export const DashboardHomePage: React.FC = () => {
     useProductStore();
   const { entries, fetchAllEntries } = useStockEntryStore();
   const { sales, fetchSales } = useSaleStore();
+  const [todayProductsSold, setTodayProductsSold] = useState(0);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -26,7 +29,42 @@ export const DashboardHomePage: React.FC = () => {
     fetchSales();
   }, []);
 
-  const today = new Date().toISOString().split("T")[0];
+  useEffect(() => {
+    const calculateTodayProductsSold = async () => {
+      const today = new Date().toLocaleDateString("sv-SE");
+      const todaySales = sales.filter((sale) => sale.saleDate === today);
+
+      if (todaySales.length === 0) {
+        setTodayProductsSold(0);
+        return;
+      }
+
+      setIsLoadingProducts(true);
+      try {
+        const saleDetails = await Promise.all(
+          todaySales.map((sale) => salesApi.getSaleById(sale.id)),
+        );
+
+        const totalProducts = saleDetails.reduce((total, saleDetail) => {
+          return (
+            total +
+            saleDetail.items.reduce((sum, item) => sum + item.quantity, 0)
+          );
+        }, 0);
+        setTodayProductsSold(totalProducts);
+      } catch (error) {
+        console.error("Error al calcular productos vendidos:", error);
+        setTodayProductsSold(0);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+    if (sales.length > 0) {
+      calculateTodayProductsSold();
+    }
+  }, [sales]);
+
+  const today = new Date().toLocaleDateString("sv-SE");
 
   const stats = {
     totalProducts: products.length,
@@ -36,11 +74,12 @@ export const DashboardHomePage: React.FC = () => {
     activeProducts: products.filter((p) => p.isActive).length,
     lowStockProducts: lowStockProducts.length,
 
-    todayStockEntries: entries.filter((entry) =>
-      entry.registeredAt.toISOString().startsWith(today),
+    todayStockEntries: entries.filter(
+      (entry) => entry.registeredAt.toLocaleDateString("sv-SE") === today,
     ).length,
 
-    todaySales: sales.filter((sale) => sale.saleDate == today).length,
+    todaySales: sales.filter((sale) => sale.saleDate === today).length,
+    todayProductsSold: todayProductsSold,
     todayRevenue: sales
       .filter((sale) => sale.saleDate === today)
       .reduce((sum, sale) => sum + sale.total, 0),
@@ -171,6 +210,39 @@ export const DashboardHomePage: React.FC = () => {
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+          </div>
+        </Card>
+        {/* Productos Vendidos Hoy */}
+        <Card
+          className="bg-gradient-to-br from-green-50 to-white hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => navigate("/sales")}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-neutral-600">Productos Vendidos Hoy</p>
+              <p className="text-2xl font-bold text-green-600 mt-1">
+                {isLoadingProducts ? (
+                  <span className="text-lg">Calculando...</span>
+                ) : (
+                  stats.todayProductsSold
+                )}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                 />
               </svg>
             </div>
