@@ -6,6 +6,7 @@ import { Card } from "@/shared/components/ui/Card";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { EmptyState } from "../components/EmptyState";
 import { ProductTable } from "../components/ProductTable";
+import { Button } from "@/shared/components/ui/Button";
 
 export const LowStockPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,22 +22,42 @@ export const LowStockPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="bg-gradient-to-br from-amber-50 to-white border border-neutral-100 shadow-sm rounded-xl">
-          <div className="px-6 py-5">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-bold text-amber-800">
-                  Productos con Stock Bajo
-                </h1>
-              </div>
-            </div>
+      <div className="px-4 sm:px-6 lg:px-8 py-6 pb-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-neutral-900">
+              Productos con Stock Bajo
+            </h1>
+            <p className="text-neutral-600 mt-1">Administra los productos</p>
           </div>
+          {lowStockProducts.length > 0 && (
+            <div className="mt-6 flex justify-end">
+              <Button
+                onClick={() => navigate("products/stock-entries")}
+                className="flex items-center gap-2"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Nueva Entrada
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 pt-3">
         {/* Products Table */}
         <Card>
           {isLoading ? (
@@ -70,31 +91,6 @@ export const LowStockPage: React.FC = () => {
             />
           )}
         </Card>
-
-        {/* Quick Action */}
-        {lowStockProducts.length > 0 && (
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={() => navigate("/products/stock-entries")}
-              className="flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Registrar Entrada de Stock
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
