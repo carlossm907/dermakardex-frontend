@@ -216,6 +216,7 @@ export const useSaleStore = create<SaleState>((set) => ({
             id: sale.id,
             ticketNumber: sale.ticketNumber,
             customerFullName: sale.customerFullName,
+            sellerFullName: sale.sellerFullName,
             saleDate: sale.saleDate,
             saleTime: sale.saleTime,
             total: sale.total,

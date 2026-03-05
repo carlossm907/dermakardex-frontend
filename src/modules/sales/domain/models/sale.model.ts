@@ -29,6 +29,7 @@ export interface SaleListItem {
   id: number;
   ticketNumber: string;
   customerFullName: string;
+  sellerFullName: string;
   saleDate: string;
   saleTime: string;
   total: number;

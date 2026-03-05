@@ -9,6 +9,7 @@ export const saleListMapper = {
     id: response.id,
     ticketNumber: response.ticketNumber,
     customerFullName: response.customerFullName,
+    sellerFullName: response.sellerFullName,
     saleDate: response.saleDate,
     saleTime: response.saleTime,
     total: response.total,
