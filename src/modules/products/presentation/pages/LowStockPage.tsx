@@ -88,6 +88,8 @@ export const LowStockPage: React.FC = () => {
               brands={brands}
               categories={categories}
               onEdit={(product) => navigate(`/products/${product.id}/edit`)}
+              laboratories={[]}
+              suppliers={[]}
             />
           )}
         </Card>
