@@ -4,6 +4,7 @@ import type { ProductPresentation } from "../../domain/models/product.model";
 
 export interface ProductResponse {
   id: number;
+  code: string;
   name: string;
   brandId: number;
   categoryId: number;
@@ -46,15 +47,16 @@ export interface StockEntryResponse {
   productId: number;
   productName: string;
   quantity: number;
+  expirationDate: string;
   unitPurchasePrice: number;
   totalInvestment: number;
   reason: string;
-  registeredByUserId: number;
-  registeredByUserName: string;
+  userFullName: string;
   registeredAt: string;
 }
 
 export interface CreateProductRequest {
+  code: string;
   name: string;
   brandId: number;
   laboratoryId: number;
@@ -69,6 +71,7 @@ export interface CreateProductRequest {
 }
 
 export interface UpdateProductRequest {
+  code: string;
   name: string;
   brandId: number;
   laboratoryId: number;
@@ -84,6 +87,7 @@ export interface UpdateProductRequest {
 
 export interface CreateStockEntryRequest {
   quantity: number;
+  expirationDate: string;
   unitPurchasePrice: number;
   reason: string;
 }
@@ -112,6 +116,11 @@ export const productsApi = {
 
   getProductById: async (id: number): Promise<ProductResponse> => {
     const response = await apiClient.get<ProductResponse>(`/products/${id}`);
+    return response.data;
+  },
+
+  getProductByCode: async (code: string): Promise<ProductResponse> => {
+    const response = await apiClient.get<ProductResponse>(`/products/${code}`);
     return response.data;
   },
 

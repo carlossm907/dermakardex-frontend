@@ -4,6 +4,7 @@ import type { ProductResponse } from "../api/products.api";
 export const productMapper = {
   toDomain: (response: ProductResponse): Product => ({
     id: response.id,
+    code: response.code,
     name: response.name,
     brandId: response.brandId,
     categoryId: response.categoryId,

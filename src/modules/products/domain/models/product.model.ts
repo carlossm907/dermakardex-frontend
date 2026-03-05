@@ -2,6 +2,7 @@ import type { DiscountType } from "./discount.type";
 
 export interface Product {
   id: number;
+  code: string;
   name: string;
   brandId: number;
   categoryId: number;
@@ -20,6 +21,7 @@ export interface Product {
 }
 
 export interface CreateProductData {
+  code: string;
   name: string;
   brandId: number;
   laboratoryId: number;
@@ -35,6 +37,7 @@ export interface CreateProductData {
 }
 
 export interface UpdateProductData {
+  code: string;
   name: string;
   brandId: number;
   laboratoryId: number;
@@ -60,6 +63,7 @@ export enum ProductPresentation {
 }
 
 export enum StockStatus {
+  EMPTY = "EMPTY",
   LOW = "LOW",
   MEDIUM = "MEDIUM",
   OK = "OK",
@@ -72,6 +76,7 @@ export const getStockStatus = (
   const ratio = stock / threshold;
 
   if (ratio <= 0.25) return StockStatus.LOW;
+  if (stock == 0) return StockStatus.EMPTY;
   if (ratio <= 0.5) return StockStatus.MEDIUM;
   return StockStatus.OK;
 };

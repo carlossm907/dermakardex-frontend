@@ -33,6 +33,7 @@ export const ProductFormPage: React.FC = () => {
   } = useCatalogStore();
 
   const [formData, setFormData] = useState({
+    code: "",
     name: "",
     brandId: "",
     laboratoryId: "",
@@ -64,6 +65,7 @@ export const ProductFormPage: React.FC = () => {
     if (isEditMode && selectedProduct) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
+        code: selectedProduct.code,
         name: selectedProduct.name,
         brandId: selectedProduct.brandId.toString(),
         laboratoryId: selectedProduct.laboratoryId.toString(),
@@ -162,6 +164,7 @@ export const ProductFormPage: React.FC = () => {
     try {
       if (isEditMode) {
         const updateData: UpdateProductData = {
+          code: formData.code.trim(),
           name: formData.name.trim(),
           brandId: parseInt(formData.brandId),
           laboratoryId: parseInt(formData.laboratoryId),
@@ -178,6 +181,7 @@ export const ProductFormPage: React.FC = () => {
         await updateProduct(parseInt(id!), updateData);
       } else {
         const createData: CreateProductData = {
+          code: formData.code.trim(),
           name: formData.name.trim(),
           brandId: parseInt(formData.brandId),
           laboratoryId: parseInt(formData.laboratoryId),
