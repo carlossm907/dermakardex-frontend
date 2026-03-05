@@ -6,12 +6,13 @@ import { ProductsListPage } from "./modules/products/presentation/pages/Products
 import { ProductFormPage } from "./modules/products/presentation/pages/ProductFormPage";
 import { CatalogManagementPage } from "./modules/products/presentation/pages/CatalogManagementPage";
 import { StockEntriesPage } from "./modules/products/presentation/pages/StockEntriesPage";
-import { DiscountsFormPage } from "./modules/products/presentation/pages/DiscountsFormPage";
 import { SaleListPage } from "./modules/sales/presentation/pages/SalesListPage";
-import { SaleFormPage } from "./modules/sales/presentation/pages/SaleFormPage";
 import { SaleDetailPage } from "./modules/sales/presentation/pages/SaleDetailPage";
 import { LowStockPage } from "./modules/products/presentation/pages/LowStockPage";
 import { DashboardHomePage } from "./shared/pages/DashBoardHomePage";
+import { DiscountsPage } from "./modules/products/presentation/pages/DiscountsPage";
+import { DiscountsFormPage } from "./modules/products/presentation/pages/DiscountsFormPage";
+import { UsersPage } from "./modules/iam/presentation/pages/UsersPage";
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <DashboardHomePage />,
+      },
+      {
+        path: "users",
+        element: <UsersPage />,
       },
       {
         path: "products",
@@ -52,6 +57,10 @@ export const router = createBrowserRouter([
       },
       {
         path: "products/discounts",
+        element: <DiscountsPage />,
+      },
+      {
+        path: "products/discounts/new",
         element: <DiscountsFormPage />,
       },
       {
@@ -61,10 +70,6 @@ export const router = createBrowserRouter([
       {
         path: "sales",
         element: <SaleListPage />,
-      },
-      {
-        path: "sales/new",
-        element: <SaleFormPage />,
       },
       {
         path: "sales/:id",
