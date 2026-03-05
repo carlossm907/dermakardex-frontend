@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useStockEntryStore } from "../../application/stores/stock-entry.store";
 import { useProductStore } from "../../application/stores/product.store";
 import { StockEntryTable } from "../components/StockEntryTable";
@@ -7,12 +7,15 @@ import { EmptyState } from "../components/EmptyState";
 import { Button } from "@/shared/components/ui/Button";
 import { Input } from "@/shared/components/ui/Input";
 import { Card } from "@/shared/components/ui/Card";
+import { productsApi } from "../../infrastructure/api/products.api";
 
 export const StockEntriesPage: React.FC = () => {
   const { entries, isLoading, fetchAllEntries, createEntry } =
     useStockEntryStore();
   const { products, fetchProducts } = useProductStore();
 
+  const barcodeRef = useRef<HTMLInputElement>(null);
+  const [barcode, setBarcode] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState(products);
@@ -22,6 +25,7 @@ export const StockEntriesPage: React.FC = () => {
 
   const [formData, setFormData] = useState({
     quantity: "",
+    expirationDate: "",
     unitPurchasePrice: "",
     reason: "",
   });
@@ -32,6 +36,12 @@ export const StockEntriesPage: React.FC = () => {
     fetchAllEntries();
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    if (showForm) {
+      barcodeRef.current?.focus();
+    }
+  }, [showForm]);
 
   useEffect(() => {
     if (searchTerm.trim()) {
@@ -47,6 +57,26 @@ export const StockEntriesPage: React.FC = () => {
 
   const selectedProduct = products.find((p) => p.id === selectedProductId);
 
+  const handleBarcodeScan = async (
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      try {
+        const product = await productsApi.getProductByCode(barcode);
+
+        setSelectedProductId(product.id);
+        setSearchTerm(product.name);
+        setFilteredProducts([]);
+
+        setBarcode("");
+      } catch {
+        alert("Producto no encontrado");
+        setBarcode("");
+      }
+    }
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -61,6 +91,8 @@ export const StockEntriesPage: React.FC = () => {
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
 
+    const today = new Date().toISOString().split("T")[0];
+
     if (!selectedProductId) {
       errors.product = "Debes seleccionar un producto";
     }
@@ -73,6 +105,12 @@ export const StockEntriesPage: React.FC = () => {
     const price = parseFloat(formData.unitPurchasePrice);
     if (!formData.unitPurchasePrice || price <= 0) {
       errors.unitPurchasePrice = "El precio debe ser mayor a 0";
+    }
+
+    if (!formData.expirationDate) {
+      errors.expirationDate = "La fecha de vencimiento es requerida";
+    } else if (formData.expirationDate < today) {
+      errors.expirationDate = "La fecha no puede ser pasada";
     }
 
     if (!formData.reason.trim()) {
@@ -92,11 +130,17 @@ export const StockEntriesPage: React.FC = () => {
       await createEntry(selectedProductId!, {
         productId: selectedProductId!,
         quantity: parseInt(formData.quantity),
+        expirationDate: formData.expirationDate,
         unitPurchasePrice: parseFloat(formData.unitPurchasePrice),
         reason: formData.reason.trim(),
       });
 
-      setFormData({ quantity: "", unitPurchasePrice: "", reason: "" });
+      setFormData({
+        quantity: "",
+        expirationDate: "",
+        unitPurchasePrice: "",
+        reason: "",
+      });
       setSelectedProductId(null);
       setSearchTerm("");
       setShowForm(false);
@@ -117,45 +161,42 @@ export const StockEntriesPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="bg-gradient-to-br from-blue-50 to-white border border-neutral-100 shadow-sm rounded-xl">
-          <div className="px-6 py-5">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-bold text-blue-800">
-                  Entradas de Stock
-                </h1>
-              </div>
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => setShowForm(!showForm)}
-                  variant={showForm ? "danger" : "primary"}
-                  className="flex items-center gap-2"
+      <div className="px-4 sm:px-6 lg:px-8 py-6 pb-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-neutral-900">
+              Entradas de Productos
+            </h1>
+            <p className="text-neutral-600 mt-1">Administra los productos</p>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => setShowForm(!showForm)}
+              variant={showForm ? "danger" : "primary"}
+              className="flex items-center gap-2"
+            >
+              {!showForm && (
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {!showForm && (
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                  )}
-                  {showForm ? "Cancelar" : "Nueva Entrada"}
-                </Button>
-              </div>
-            </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+              )}
+              {showForm ? "Cancelar" : "Nueva Entrada"}
+            </Button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 pt-3">
         {/* Formulario de nueva entrada */}
         {showForm && (
           <Card className="mb-6">
@@ -172,18 +213,37 @@ export const StockEntriesPage: React.FC = () => {
               <div className="space-y-6">
                 {/* Buscador y selector de producto */}
                 <div>
-                  <label className="label">Buscar Producto</label>
-                  <Input
-                    type="text"
-                    placeholder="Escribe el nombre del producto..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  {formErrors.product && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {formErrors.product}
-                    </p>
-                  )}
+                  <div className="space-y-4">
+                    {/* Scanner */}
+                    <div>
+                      <label className="label">Escanear Producto</label>
+                      <Input
+                        ref={barcodeRef}
+                        type="text"
+                        placeholder="Escanea el código de barras..."
+                        value={barcode}
+                        onChange={(e) => setBarcode(e.target.value)}
+                        onKeyDown={handleBarcodeScan}
+                      />
+                    </div>
+
+                    {/* Buscador */}
+                    <div>
+                      <label className="label">Buscar Producto</label>
+                      <Input
+                        type="text"
+                        placeholder="Escribe el nombre del producto..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+
+                    {formErrors.product && (
+                      <p className="text-sm text-red-600">
+                        {formErrors.product}
+                      </p>
+                    )}
+                  </div>
 
                   {/* Lista de productos filtrados */}
                   {searchTerm && filteredProducts.length > 0 && (
@@ -263,6 +323,15 @@ export const StockEntriesPage: React.FC = () => {
                     value={formData.quantity}
                     onChange={handleInputChange}
                     error={formErrors.quantity}
+                  />
+
+                  <Input
+                    label="Fecha de Vencimiento"
+                    name="expirationDate"
+                    type="date"
+                    value={formData.expirationDate}
+                    onChange={handleInputChange}
+                    error={formErrors.expirationDate}
                   />
 
                   <Input
