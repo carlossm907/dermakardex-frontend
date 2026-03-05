@@ -1,6 +1,7 @@
 import {
   UserRole,
   type AuthenticatedUser,
+  type User,
 } from "@/modules/iam/domain/models/user.model";
 import {
   iamApi,
@@ -41,6 +42,7 @@ class AuthService {
           username: authenticatedUser.username,
           fullName: authenticatedUser.fullName,
           role: authenticatedUser.role,
+          roles: authenticatedUser.roles,
         }),
       );
 
@@ -75,6 +77,19 @@ class AuthService {
     }
   }
 
+  async fetchUsers(): Promise<User[]> {
+    try {
+      const response = await iamApi.getAllUsers();
+
+      return response.map((user) => userMapper.toDomain(user));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        throw new Error("Error al mostrar los usuarios");
+      }
+      throw new Error("No se pudo obtener la lista de usuarios");
+    }
+  }
+
   logout(): void {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -90,7 +105,11 @@ class AuthService {
 
     try {
       const user = JSON.parse(userStr);
-      return { ...user, token, roles: [user.role] };
+      return {
+        ...user,
+        token,
+        roles: Array.isArray(user.roles) ? user.roles : [user.role],
+      };
     } catch {
       return null;
     }

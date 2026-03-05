@@ -1,4 +1,7 @@
-import type { AuthenticatedUser } from "@/modules/iam/domain/models/user.model";
+import type {
+  AuthenticatedUser,
+  User,
+} from "@/modules/iam/domain/models/user.model";
 import {
   authService,
   type LoginCredentials,
@@ -11,12 +14,14 @@ const storedUser = authService.getStoredUser();
 
 interface AuthState {
   user: AuthenticatedUser | null;
+  users: User[];
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
 
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
+  fetchUsers: () => Promise<void>;
   logout: () => void;
   initialize: () => void;
   clearError: () => void;
@@ -24,6 +29,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: storedUser,
+  users: [],
   isAuthenticated: !!token,
   isLoading: false,
   error: null,
@@ -60,6 +66,27 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
       throw error;
+    }
+  },
+
+  fetchUsers: async () => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const users = await authService.fetchUsers();
+
+      set({
+        users,
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Error al obtener usuarios";
+
+      set({
+        error: message,
+        isLoading: false,
+      });
     }
   },
 
