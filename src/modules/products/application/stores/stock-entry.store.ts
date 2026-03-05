@@ -79,6 +79,7 @@ export const useStockEntryStore = create<StockEntryState>((set) => ({
     try {
       await productsApi.createStockEntry(id, {
         quantity: data.quantity,
+        expirationDate: data.expirationDate,
         unitPurchasePrice: data.unitPurchasePrice,
         reason: data.reason,
       });

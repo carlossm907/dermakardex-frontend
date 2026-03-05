@@ -7,11 +7,11 @@ export const stockEntryMapper = {
     productId: response.productId,
     productName: response.productName,
     quantity: response.quantity,
+    expirationDate: response.expirationDate,
     unitPurchasePrice: response.unitPurchasePrice,
     totalInvestment: response.totalInvestment,
     reason: response.reason,
-    registeredByUserId: response.registeredByUserId,
-    registeredByUserName: response.registeredByUserName,
+    userFullName: response.userFullName,
     registeredAt: new Date(response.registeredAt),
   }),
 

@@ -28,6 +28,14 @@ export const StockEntryTable: React.FC<StockEntryTableProps> = ({
     }).format(date);
   };
 
+  const formatDateOnly = (dateString: string) => {
+    return new Intl.DateTimeFormat("es-PE", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(dateString));
+  };
+
   if (entries.length === 0) {
     return (
       <div className="text-center py-12">
@@ -67,6 +75,9 @@ export const StockEntryTable: React.FC<StockEntryTableProps> = ({
             <th className="text-center p-4 text-sm font-semibold text-neutral-700">
               Cantidad
             </th>
+            <th className="text-left p-4 text-sm font-semibold text-neutral-700">
+              Vencimiento
+            </th>
             <th className="text-right p-4 text-sm font-semibold text-neutral-700">
               Precio Unit.
             </th>
@@ -100,6 +111,9 @@ export const StockEntryTable: React.FC<StockEntryTableProps> = ({
                   +{entry.quantity}
                 </span>
               </td>
+              <td className="p-4 text-sm text-neutral-600">
+                {formatDateOnly(entry.expirationDate)}
+              </td>
               <td className="p-4 text-right text-sm font-medium text-neutral-900">
                 {formatCurrency(entry.unitPurchasePrice)}
               </td>
@@ -108,7 +122,7 @@ export const StockEntryTable: React.FC<StockEntryTableProps> = ({
               </td>
               <td className="p-4 text-sm text-neutral-600">{entry.reason}</td>
               <td className="p-4 text-sm text-neutral-600">
-                {entry.registeredByUserName}
+                {entry.userFullName}
               </td>
             </tr>
           ))}

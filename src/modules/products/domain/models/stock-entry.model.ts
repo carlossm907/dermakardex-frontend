@@ -3,17 +3,18 @@ export interface StockEntry {
   productId: number;
   productName: string;
   quantity: number;
+  expirationDate: string;
   unitPurchasePrice: number;
   totalInvestment: number;
   reason: string;
-  registeredByUserId: number;
-  registeredByUserName: string;
+  userFullName: string;
   registeredAt: Date;
 }
 
 export interface CreateStockEntryData {
   productId: number;
   quantity: number;
+  expirationDate: string;
   unitPurchasePrice: number;
   reason: string;
 }
