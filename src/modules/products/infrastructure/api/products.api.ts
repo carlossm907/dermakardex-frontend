@@ -105,6 +105,51 @@ export interface UpdateCatalogItemRequest {
   name: string;
 }
 
+export interface ScheduledDiscountResponse {
+  id: number;
+  productId: number;
+  name: string;
+  discountType: DiscountType;
+  discountValue: number;
+  startsAt: string;
+  endsAt: string;
+  isActive: boolean;
+}
+
+export interface ScheduleDiscountRequest {
+  productId: number;
+  name: string;
+  type: DiscountType;
+  value: number;
+  startsAt: string;
+  endsAt: string;
+}
+
+export interface ScheduleDiscountToProductsRequest {
+  productIds: number[];
+  name: string;
+  discountType: DiscountType;
+  discountValue: number;
+  startsAt: string;
+  endsAt: string;
+}
+
+export interface ScheduleDiscountToAllRequest {
+  name: string;
+  discountType: DiscountType;
+  discountValue: number;
+  startsAt: string;
+  endsAt: string;
+}
+
+export interface UpdateScheduledDiscountRequest {
+  name: string;
+  type: DiscountType;
+  value: number;
+  startsAt: string;
+  endsAt: string;
+}
+
 export const productsApi = {
   getProducts: async (name?: string): Promise<ProductResponse[]> => {
     const params = name ? { name } : {};
@@ -342,5 +387,71 @@ export const productsApi = {
 
   deleteSupplier: async (id: number): Promise<void> => {
     await apiClient.delete(`/suppliers/${id}`);
+  },
+
+  //Schduled Discounts
+  getAllScheduledDiscounts: async (): Promise<ScheduledDiscountResponse[]> => {
+    const response =
+      await apiClient.get<ScheduledDiscountResponse[]>("/product-discounts");
+    return response.data;
+  },
+
+  getActiveScheduledDiscounts: async (): Promise<
+    ScheduledDiscountResponse[]
+  > => {
+    const response = await apiClient.get<ScheduledDiscountResponse[]>(
+      "/product-discounts/active",
+    );
+    return response.data;
+  },
+
+  getScheduledDiscountByProductId: async (
+    productId: number,
+  ): Promise<ScheduledDiscountResponse[]> => {
+    const response = await apiClient.get<ScheduledDiscountResponse[]>(
+      `/product-discounts/product/${productId}`,
+    );
+    return response.data;
+  },
+
+  createScheduledDiscount: async (
+    data: ScheduleDiscountRequest,
+  ): Promise<ScheduledDiscountResponse> => {
+    const response = await apiClient.post<ScheduledDiscountResponse>(
+      "/product-discounts",
+      data,
+    );
+    return response.data;
+  },
+
+  createScheduledDiscountToProducts: async (
+    data: ScheduleDiscountToProductsRequest,
+  ): Promise<void> => {
+    await apiClient.post("/product-discounts/bulk", data);
+  },
+
+  createScheduledDiscountToAllProducts: async (
+    data: ScheduleDiscountToAllRequest,
+  ): Promise<void> => {
+    await apiClient.post("/product-discounts/all", data);
+  },
+
+  updateScheduledDiscount: async (
+    id: number,
+    data: UpdateScheduledDiscountRequest,
+  ): Promise<void> => {
+    await apiClient.put(`/product-discounts/${id}`, data);
+  },
+
+  deleteScheduledDiscount: async (id: number): Promise<void> => {
+    await apiClient.delete(`/product-discounts/${id}`);
+  },
+
+  disableScheduledDiscount: async (id: number): Promise<void> => {
+    await apiClient.patch(`/product-discounts/${id}/disable`);
+  },
+
+  cleanupExpiredScheduledDiscount: async (): Promise<void> => {
+    await apiClient.post("/product-discounts/cleanup-expired");
   },
 };
