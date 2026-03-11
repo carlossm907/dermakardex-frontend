@@ -17,6 +17,7 @@ import { SaleStatusBadge } from "../components/SaleStatusBadge";
 import { PaymentForm } from "../components/PaymentForm";
 import { productsApi } from "@/modules/products/infrastructure/api/products.api";
 import { generateSaleTicketPdf } from "../../utils/generateSaleTicketPdf";
+import { useScheduledDiscountStore } from "@/modules/products/application/stores/scheduled-discount.store";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(
@@ -51,6 +52,8 @@ export const SaleListPage: React.FC = () => {
     registerSale,
   } = useSaleStore();
 
+  const { discounts, fetchActive } = useScheduledDiscountStore();
+
   const { products, fetchProducts } = useProductStore();
 
   const [showModal, setShowModal] = useState(false);
@@ -70,6 +73,7 @@ export const SaleListPage: React.FC = () => {
   useEffect(() => {
     fetchSales();
     fetchProducts();
+    fetchActive();
   }, []);
 
   useEffect(() => {
@@ -108,21 +112,49 @@ export const SaleListPage: React.FC = () => {
     if (existingItem) {
       if (existingItem.quantity >= product.stock) return;
       handleIncrementQuantity(productId);
-    } else {
-      const newItem: CartProduct = {
-        productId: product.id,
-        productName: product.name,
-        presentation: product.presentation,
-        quantity: 1,
-        baseUnitPrice: product.salePrice,
-        unitPrice: product.finalPrice,
-        discountType: product.discountType,
-        discountValue: product.discountValue,
-        availableStock: product.stock,
-        lineTotal: product.finalPrice,
-      };
-      setCart([...cart, newItem]);
+      return;
     }
+
+    const scheduled = getActiveScheduledDiscount(product.id);
+
+    let discountType: DiscountType;
+    let discountValue: number;
+    let unitPrice: number;
+
+    if (scheduled) {
+      discountType = scheduled.discountType;
+      discountValue = scheduled.discountValue;
+
+      unitPrice = applyDiscount(product.salePrice, discountType, discountValue);
+    } else if (product.discountType !== DiscountType.NONE) {
+      discountType = product.discountType;
+      discountValue = product.discountValue;
+
+      unitPrice = applyDiscount(product.salePrice, discountType, discountValue);
+    } else {
+      discountType = DiscountType.NONE;
+      discountValue = 0;
+      unitPrice = product.salePrice;
+    }
+
+    const newItem: CartProduct = {
+      productId: product.id,
+      productName: product.name,
+      presentation: product.presentation,
+      quantity: 1,
+
+      baseUnitPrice: product.salePrice,
+      unitPrice: unitPrice,
+
+      discountType: discountType,
+      discountValue: discountValue,
+
+      availableStock: product.stock,
+
+      lineTotal: unitPrice,
+    };
+
+    setCart([...cart, newItem]);
 
     setSearchTerm("");
   };
@@ -144,6 +176,34 @@ export const SaleListPage: React.FC = () => {
         return item;
       }),
     );
+  };
+
+  const getActiveScheduledDiscount = (productId: number) => {
+    const now = new Date();
+
+    return discounts.find(
+      (d) =>
+        d.productId === productId &&
+        d.isActive &&
+        new Date(d.startsAt) <= now &&
+        new Date(d.endsAt) >= now,
+    );
+  };
+
+  const applyDiscount = (
+    basePrice: number,
+    type: DiscountType,
+    value: number,
+  ) => {
+    if (type === DiscountType.PERCENTAGE) {
+      return basePrice * (1 - value / 100);
+    }
+
+    if (type === DiscountType.AMOUNT) {
+      return Math.max(basePrice - value, 0);
+    }
+
+    return basePrice;
   };
 
   const handleDecrementQuantity = (productId: number) => {
@@ -590,36 +650,60 @@ export const SaleListPage: React.FC = () => {
                             No se encontraron productos
                           </p>
                         ) : (
-                          filteredProducts.slice(0, 10).map((product) => (
-                            <button
-                              key={product.id}
-                              onClick={() => handleAddToCart(product.id)}
-                              className="w-full text-left p-3 bg-neutral-50 hover:bg-neutral-100 rounded-lg border border-neutral-200 transition-colors"
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-neutral-900 truncate">
-                                    {product.name}
-                                  </p>
-                                  <p className="text-xs text-neutral-500 mt-0.5">
-                                    {product.presentation} · Stock:{" "}
-                                    {product.stock}
-                                  </p>
-                                </div>
-                                <div className="text-right ml-4">
-                                  <p className="font-semibold text-green-700">
-                                    {formatCurrency(product.finalPrice)}
-                                  </p>
-                                  {product.discountType !==
-                                    DiscountType.NONE && (
-                                    <p className="text-xs text-neutral-400 line-through">
-                                      {formatCurrency(product.salePrice)}
+                          filteredProducts.slice(0, 10).map((product) => {
+                            const scheduled = getActiveScheduledDiscount(
+                              product.id,
+                            );
+
+                            let finalPrice = product.salePrice;
+                            let hasDiscount = false;
+
+                            if (scheduled) {
+                              finalPrice = applyDiscount(
+                                product.salePrice,
+                                scheduled.discountType,
+                                scheduled.discountValue,
+                              );
+                              hasDiscount = true;
+                            } else if (
+                              product.discountType !== DiscountType.NONE
+                            ) {
+                              finalPrice = product.finalPrice;
+                              hasDiscount = true;
+                            }
+
+                            return (
+                              <button
+                                key={product.id}
+                                onClick={() => handleAddToCart(product.id)}
+                                className="w-full text-left p-3 bg-neutral-50 hover:bg-neutral-100 rounded-lg border border-neutral-200 transition-colors"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-neutral-900 truncate">
+                                      {product.name}
                                     </p>
-                                  )}
+                                    <p className="text-xs text-neutral-500 mt-0.5">
+                                      {product.presentation} · Stock:{" "}
+                                      {product.stock}
+                                    </p>
+                                  </div>
+
+                                  <div className="text-right ml-4">
+                                    <p className="font-semibold text-green-700">
+                                      {formatCurrency(finalPrice)}
+                                    </p>
+
+                                    {hasDiscount && (
+                                      <p className="text-xs text-neutral-400 line-through">
+                                        {formatCurrency(product.salePrice)}
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            </button>
-                          ))
+                              </button>
+                            );
+                          })
                         )}
                       </div>
                     )}
