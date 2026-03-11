@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useScheduledDiscountStore } from "../../application/stores/scheduled-discount.store";
 import type { Product } from "../../domain/models/product.model";
-import type { ScheduledDiscount } from "../../domain/models/scheduled-discount.model";
 import { DiscountType } from "../../domain/models/discount.type";
 import { Button } from "@/shared/components/ui/Button";
 import { Input } from "@/shared/components/ui/Input";
+import type { DiscountCampaign } from "./CampaignProductsModal";
 
 type ApplyMode = "single" | "multiple" | "all";
 
 interface Props {
-  editingDiscount: ScheduledDiscount | null;
+  editingCampaign: DiscountCampaign | null;
   products: Product[];
   onClose: () => void;
   onSuccess: () => void;
@@ -26,32 +26,33 @@ const toIsoString = (localValue: string) => {
 };
 
 export const ScheduledDiscountFormModal: React.FC<Props> = ({
-  editingDiscount,
+  editingCampaign,
   products,
   onClose,
   onSuccess,
 }) => {
   const { createForProduct, createForProducts, createForAll, update } =
     useScheduledDiscountStore();
-  const isEditing = !!editingDiscount;
+  const isEditing = !!editingCampaign;
+  const representative = editingCampaign?.representative;
   const [mode, setMode] = useState<ApplyMode>("single");
-  const [name, setName] = useState(editingDiscount?.name ?? "");
+  const [name, setName] = useState(representative?.name ?? "");
   const [discountType, setDiscountType] = useState<DiscountType>(
-    editingDiscount?.discountType ?? DiscountType.PERCENTAGE,
+    representative?.discountType ?? DiscountType.PERCENTAGE,
   );
   const [discountValue, setDiscountValue] = useState(
-    editingDiscount?.discountValue?.toString() ?? "",
+    representative?.discountValue?.toString() ?? "",
   );
   const [startsAt, setStartsAt] = useState(
-    toLocalDatetimeValue(editingDiscount?.startsAt),
+    toLocalDatetimeValue(representative?.startsAt),
   );
   const [endsAt, setEndsAt] = useState(
-    toLocalDatetimeValue(editingDiscount?.endsAt),
+    toLocalDatetimeValue(representative?.endsAt),
   );
 
   const [productSearch, setProductSearch] = useState("");
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
-    editingDiscount?.productId ?? null,
+    representative?.productId ?? null,
   );
 
   const [selectedProductIds, setSelectedProductIds] = useState<Set<number>>(
@@ -109,14 +110,18 @@ export const ScheduledDiscountFormModal: React.FC<Props> = ({
     const value = parseFloat(discountValue);
 
     try {
-      if (isEditing) {
-        await update(editingDiscount.id, {
-          name: name.trim(),
-          type: discountType,
-          value,
-          startsAt: toIsoString(startsAt),
-          endsAt: toIsoString(endsAt),
-        });
+      if (isEditing && editingCampaign) {
+        await Promise.all(
+          editingCampaign.items.map((d) =>
+            update(d.id, {
+              name: name.trim(),
+              type: discountType,
+              value,
+              startsAt: toIsoString(startsAt),
+              endsAt: toIsoString(endsAt),
+            }),
+          ),
+        );
       } else if (mode === "single" && selectedProductId) {
         await createForProduct({
           productId: selectedProductId,

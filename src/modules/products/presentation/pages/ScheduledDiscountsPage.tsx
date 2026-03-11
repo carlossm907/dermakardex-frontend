@@ -7,13 +7,18 @@ import {
   isCurrentlyActive,
   isExpired,
   isPending,
-  type ScheduledDiscount,
 } from "../../domain/models/scheduled-discount.model";
 import { Card } from "@/shared/components/ui/Card";
 import { Button } from "@/shared/components/ui/Button";
 import { EmptyState } from "../components/EmptyState";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ScheduledDiscountFormModal } from "../components/ScheduledDiscountFormModal";
+import {
+  CampaignProductsModal,
+  groupIntoCampaigns,
+  StatusChip,
+  type DiscountCampaign,
+} from "../components/CampaignProductsModal";
 
 type TabType = "all" | "active" | "pending" | "expired";
 
@@ -32,36 +37,6 @@ const discountLabel = (type: DiscountType, value: number) => {
   return "—";
 };
 
-const StatusChip: React.FC<{ discount: ScheduledDiscount }> = ({
-  discount,
-}) => {
-  if (!discount.isActive)
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-600">
-        Desactivado
-      </span>
-    );
-  if (isExpired(discount))
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-        Vencido
-      </span>
-    );
-  if (isCurrentlyActive(discount))
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-        Activo ahora
-      </span>
-    );
-  if (isPending(discount))
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
-        Pendiente
-      </span>
-    );
-  return null;
-};
-
 export const ScheduledDiscountsPage: React.FC = () => {
   const {
     discounts,
@@ -77,19 +52,17 @@ export const ScheduledDiscountsPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [showModal, setShowModal] = useState(false);
-  const [editingDiscount, setEditingDiscount] =
-    useState<ScheduledDiscount | null>(null);
+  const [editingCampaign, setEditingDiscount] =
+    useState<DiscountCampaign | null>(null);
   const [cleaningUp, setCleaningUp] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] =
+    useState<DiscountCampaign | null>(null);
 
   useEffect(() => {
     fetchAll();
     fetchProducts();
     fetchCatalogs();
   }, []);
-
-  useEffect(() => {
-    console.log("Scheduled discounts:", discounts);
-  }, [discounts]);
 
   const getProductName = (productId: number) =>
     products.find((p) => p.id === productId)?.name ?? `Producto #${productId}`;
@@ -109,15 +82,17 @@ export const ScheduledDiscountsPage: React.FC = () => {
     return true;
   });
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("¿Eliminar este descuento programado?")) return;
+  const campaigns = groupIntoCampaigns(filteredDiscounts);
+
+  const handleDeleteCampaign = async (ids: number[]) => {
+    if (!window.confirm("¿Eliminar esta campaña de descuentos?")) return;
+
     try {
-      await remove(id);
+      await Promise.all(ids.map((id) => remove(id)));
     } catch {
       /* handled in store */
     }
   };
-
   const handleCleanup = async () => {
     if (
       !window.confirm(
@@ -145,7 +120,7 @@ export const ScheduledDiscountsPage: React.FC = () => {
       label: "Pendientes",
       count: discounts.filter(isPending).length,
     },
-    //{ key: "expired", label: "Vencidos", count: expired.length },
+    { key: "expired", label: "Vencidos", count: expired.length },
   ];
 
   return (
@@ -219,7 +194,10 @@ export const ScheduledDiscountsPage: React.FC = () => {
               <div>
                 <p className="text-sm text-neutral-600">Activos ahora</p>
                 <p className="text-2xl font-bold text-green-600 mt-1">
-                  {discounts.filter(isCurrentlyActive).length}
+                  {
+                    groupIntoCampaigns(discounts.filter(isCurrentlyActive))
+                      .length
+                  }
                 </p>
               </div>
               <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -245,7 +223,7 @@ export const ScheduledDiscountsPage: React.FC = () => {
               <div>
                 <p className="text-sm text-neutral-600">Pendientes</p>
                 <p className="text-2xl font-bold text-amber-600 mt-1">
-                  {discounts.filter(isPending).length}
+                  {groupIntoCampaigns(discounts.filter(isPending)).length}
                 </p>
               </div>
               <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
@@ -271,7 +249,7 @@ export const ScheduledDiscountsPage: React.FC = () => {
               <div>
                 <p className="text-sm text-neutral-600">Vencidos</p>
                 <p className="text-2xl font-bold text-red-600 mt-1">
-                  {expired.length}
+                  {groupIntoCampaigns(expired).length}
                 </p>
               </div>
               <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
@@ -295,9 +273,9 @@ export const ScheduledDiscountsPage: React.FC = () => {
           <Card className="bg-gradient-to-br from-blue-50 to-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-neutral-600">Total</p>
+                <p className="text-sm text-neutral-600">Total campañas</p>
                 <p className="text-2xl font-bold text-blue-600 mt-1">
-                  {discounts.length}
+                  {groupIntoCampaigns(discounts).length}
                 </p>
               </div>
               <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -318,6 +296,7 @@ export const ScheduledDiscountsPage: React.FC = () => {
             </div>
           </Card>
         </div>
+
         {/* Tabs */}
         <div className="flex gap-1 mb-4 bg-white border border-neutral-200 rounded-xl p-1 w-fit">
           {tabs.map((tab) => (
@@ -343,6 +322,7 @@ export const ScheduledDiscountsPage: React.FC = () => {
             </button>
           ))}
         </div>
+
         {/* Alert for expired */}
         {activeTab === "expired" && expired.length > 0 && (
           <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
@@ -378,11 +358,12 @@ export const ScheduledDiscountsPage: React.FC = () => {
             </Button>
           </div>
         )}
-        {/* Table */}
+
+        {/* Campaigns table */}
         <Card>
           {isLoading ? (
             <LoadingSpinner message="Cargando descuentos programados..." />
-          ) : filteredDiscounts.length === 0 ? (
+          ) : campaigns.length === 0 ? (
             <EmptyState
               icon={
                 <svg
@@ -400,7 +381,7 @@ export const ScheduledDiscountsPage: React.FC = () => {
                 </svg>
               }
               title="No hay descuentos programados"
-              description="Crea un nuevo descuento programado para un producto."
+              description="Crea un nuevo descuento programado para uno o varios productos."
               actionLabel="Nuevo Descuento"
               onAction={() => {
                 setEditingDiscount(null);
@@ -413,13 +394,13 @@ export const ScheduledDiscountsPage: React.FC = () => {
                 <thead>
                   <tr className="border-b border-neutral-200 bg-neutral-50">
                     <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                      Nombre
-                    </th>
-                    <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                      Producto
+                      Campaña
                     </th>
                     <th className="text-center p-4 text-sm font-semibold text-neutral-700">
                       Descuento
+                    </th>
+                    <th className="text-center p-4 text-sm font-semibold text-neutral-700">
+                      Productos
                     </th>
                     <th className="text-left p-4 text-sm font-semibold text-neutral-700">
                       Inicio
@@ -436,55 +417,101 @@ export const ScheduledDiscountsPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredDiscounts.map((discount) => (
+                  {campaigns.map((campaign) => (
                     <tr
-                      key={discount.id}
-                      className={`border-b border-neutral-100 transition-colors ${
-                        isExpired(discount)
+                      key={campaign.key}
+                      className={`border-b border-neutral-100 transition-colors cursor-pointer ${
+                        isExpired(campaign.representative)
                           ? "bg-red-50/40 hover:bg-red-50"
                           : "hover:bg-neutral-50"
                       }`}
+                      onClick={() => setSelectedCampaign(campaign)}
+                      title="Click para ver productos"
                     >
                       <td className="p-4">
                         <span className="font-medium text-neutral-900">
-                          {discount.name}
+                          {campaign.name}
                         </span>
                       </td>
-                      <td className="p-4">
-                        <div className="font-medium text-neutral-900 text-sm">
-                          {getProductName(discount.productId)}
-                        </div>
-                        {getBrandName(discount.productId) && (
-                          <div className="text-xs text-neutral-500 mt-0.5">
-                            {getBrandName(discount.productId)}
-                          </div>
-                        )}
-                      </td>
+
                       <td className="p-4 text-center">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                           {discountLabel(
-                            discount.discountType,
-                            discount.discountValue,
+                            campaign.discountType,
+                            campaign.discountValue,
                           )}
                         </span>
                       </td>
-                      <td className="p-4 text-sm text-neutral-600">
-                        {formatDate(discount.startsAt)}
-                      </td>
-                      <td className="p-4 text-sm text-neutral-600">
-                        {formatDate(discount.endsAt)}
-                      </td>
+
                       <td className="p-4 text-center">
-                        <StatusChip discount={discount} />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                            />
+                          </svg>
+                          {campaign.items.length}{" "}
+                          {campaign.items.length === 1
+                            ? "producto"
+                            : "productos"}
+                        </span>
                       </td>
-                      <td className="p-4 text-right">
+
+                      <td className="p-4 text-sm text-neutral-600">
+                        {formatDate(campaign.startsAt)}
+                      </td>
+                      <td className="p-4 text-sm text-neutral-600">
+                        {formatDate(campaign.endsAt)}
+                      </td>
+
+                      <td className="p-4 text-center">
+                        <StatusChip discount={campaign.representative} />
+                      </td>
+
+                      <td
+                        className="p-4 text-right"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div className="flex items-center justify-end gap-2">
-                          {!isExpired(discount) && (
+                          <Button
+                            variant="secondary"
+                            className="text-sm"
+                            onClick={() => setSelectedCampaign(campaign)}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                          </Button>
+                          {!isExpired(campaign.representative) && (
                             <Button
                               variant="secondary"
                               className="text-sm"
                               onClick={() => {
-                                setEditingDiscount(discount);
+                                setEditingDiscount(campaign);
                                 setShowModal(true);
                               }}
                             >
@@ -506,7 +533,11 @@ export const ScheduledDiscountsPage: React.FC = () => {
                           <Button
                             variant="secondary"
                             className="text-sm text-red-600 hover:bg-red-50"
-                            onClick={() => handleDelete(discount.id)}
+                            onClick={() =>
+                              handleDeleteCampaign(
+                                campaign.items.map((d) => d.id),
+                              )
+                            }
                           >
                             <svg
                               className="w-4 h-4"
@@ -533,9 +564,20 @@ export const ScheduledDiscountsPage: React.FC = () => {
         </Card>
       </div>
 
+      {/* Campaign products modal */}
+      {selectedCampaign && (
+        <CampaignProductsModal
+          campaign={selectedCampaign}
+          getProductName={getProductName}
+          getBrandName={getBrandName}
+          onClose={() => setSelectedCampaign(null)}
+        />
+      )}
+
+      {/* Create / edit form modal */}
       {showModal && (
         <ScheduledDiscountFormModal
-          editingDiscount={editingDiscount}
+          editingCampaign={editingCampaign}
           products={products}
           onClose={() => {
             setShowModal(false);
