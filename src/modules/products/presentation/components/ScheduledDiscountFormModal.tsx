@@ -514,8 +514,7 @@ export const ScheduledDiscountFormModal: React.FC<Props> = ({
                 </p>
                 <p className="text-sm text-amber-700 mt-0.5">
                   Este descuento se programará para los {products.length}{" "}
-                  productos del sistema. Los que ya tengan un descuento en ese
-                  rango de fechas serán omitidos.
+                  productos del sistema.
                 </p>
               </div>
             </div>
