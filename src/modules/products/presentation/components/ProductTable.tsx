@@ -8,6 +8,8 @@ import { StatusBadge } from "./StatusBadge";
 import { Button } from "@/shared/components/ui/Button";
 import { useState } from "react";
 import { ProductDetailModal } from "./ProductDetailModal";
+import { useScheduledDiscountStore } from "../../application/stores/scheduled-discount.store";
+import { ScheduledDiscountBadge } from "./ScheduledDiscountBadge";
 
 interface ProductTableProps {
   products: Product[];
@@ -30,6 +32,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   showActions = true,
   className = "",
 }) => {
+  const { discounts } = useScheduledDiscountStore();
+
   const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -48,6 +52,34 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     } else {
       navigate(`/products/${product.id}/edit`);
     }
+  };
+
+  const getActiveScheduledDiscount = (productId: number) => {
+    const now = new Date();
+
+    return discounts.find(
+      (d) =>
+        d.productId === productId &&
+        d.isActive &&
+        new Date(d.startsAt) <= now &&
+        new Date(d.endsAt) >= now,
+    );
+  };
+
+  const calculateScheduledPrice = (
+    salePrice: number,
+    discountType: number,
+    discountValue: number,
+  ) => {
+    if (discountType === 2) {
+      return salePrice - salePrice * (discountValue / 100);
+    }
+
+    if (discountType === 1) {
+      return salePrice - discountValue;
+    }
+
+    return salePrice;
   };
 
   if (products.length === 0) {
@@ -108,72 +140,108 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               )}
             </tr>
           </thead>
+
           <tbody>
-            {products.map((product) => (
-              <tr
-                key={product.id}
-                className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors cursor-pointer"
-                onClick={() => setSelectedProduct(product)}
-                title="Click para ver detalle"
-              >
-                <td className="p-4">
-                  <div className="font-medium text-neutral-900">
-                    {product.name}
-                  </div>
-                  <DiscountBadge
-                    discountType={product.discountType}
-                    discountValue={product.discountValue}
-                    className="mt-1"
-                  />
-                </td>
-                <td className="p-4 text-sm text-neutral-600">
-                  {getBrandName(product.brandId)}
-                </td>
-                <td className="p-4 text-sm text-neutral-600">
-                  {getCategoryName(product.categoryId)}
-                </td>
-                <td className="p-4 text-sm text-neutral-600">
-                  {product.presentation}
-                </td>
-                <td className="p-4 text-right">
-                  <PriceDisplay
-                    price={product.salePrice}
-                    className="justify-end"
-                  />
-                </td>
-                <td className="p-4 text-right">
-                  <PriceDisplay
-                    price={product.finalPrice}
-                    originalPrice={product.salePrice}
-                    showDiscount={true}
-                    className="justify-end"
-                  />
-                </td>
-                <td className="p-4 text-center">
-                  <StockBadge
-                    stock={product.stock}
-                    status={getStockStatus(
-                      product.stock,
-                      product.stockAlertThreshold,
+            {products.map((product) => {
+              const scheduled = getActiveScheduledDiscount(product.id);
+
+              return (
+                <tr
+                  key={product.id}
+                  className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedProduct(product)}
+                  title="Click para ver detalle"
+                >
+                  <td className="p-4">
+                    <div className="font-medium text-neutral-900">
+                      {product.name}
+                    </div>
+
+                    {scheduled ? (
+                      <ScheduledDiscountBadge
+                        name={scheduled.name}
+                        discountType={scheduled.discountType}
+                        discountValue={scheduled.discountValue}
+                        className="mt-1"
+                      />
+                    ) : (
+                      <DiscountBadge
+                        discountType={product.discountType}
+                        discountValue={product.discountValue}
+                        className="mt-1"
+                      />
                     )}
-                  />
-                </td>
-                <td className="p-4 text-center">
-                  <StatusBadge isActive={product.isActive} />
-                </td>
-                {showActions && (
-                  <td className="p-4 text-right">
-                    <Button
-                      variant="secondary"
-                      className="text-sm"
-                      onClick={(e) => handleEdit(product, e)}
-                    >
-                      Editar
-                    </Button>
                   </td>
-                )}
-              </tr>
-            ))}
+
+                  <td className="p-4 text-sm text-neutral-600">
+                    {getBrandName(product.brandId)}
+                  </td>
+
+                  <td className="p-4 text-sm text-neutral-600">
+                    {getCategoryName(product.categoryId)}
+                  </td>
+
+                  <td className="p-4 text-sm text-neutral-600">
+                    {product.presentation}
+                  </td>
+
+                  <td className="p-4 text-right">
+                    <PriceDisplay
+                      price={product.salePrice}
+                      className="justify-end"
+                    />
+                  </td>
+
+                  <td className="p-4 text-right">
+                    {scheduled ? (
+                      <PriceDisplay
+                        price={calculateScheduledPrice(
+                          product.salePrice,
+                          scheduled.discountType,
+                          scheduled.discountValue,
+                        )}
+                        originalPrice={product.salePrice}
+                        showDiscount={true}
+                        className="justify-end"
+                      />
+                    ) : (
+                      <PriceDisplay
+                        price={product.finalPrice}
+                        originalPrice={product.salePrice}
+                        showDiscount={product.discountType !== 0}
+                        className="justify-end"
+                      />
+                    )}
+                  </td>
+
+                  <td className="p-4 text-center">
+                    <StockBadge
+                      stock={product.stock}
+                      status={getStockStatus(
+                        product.stock,
+                        product.stockAlertThreshold,
+                      )}
+                    />
+                  </td>
+
+                  <td className="p-4 text-center">
+                    <StatusBadge isActive={product.isActive} />
+                  </td>
+
+                  {showActions && (
+                    <td className="p-4 text-right">
+                      <Button
+                        variant="secondary"
+                        className="text-sm"
+                        onClick={(e) => handleEdit(product, e)}
+                      >
+                        Editar
+                      </Button>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -13,6 +13,7 @@ import { DashboardHomePage } from "./shared/pages/DashBoardHomePage";
 import { DiscountsPage } from "./modules/products/presentation/pages/DiscountsPage";
 import { DiscountsFormPage } from "./modules/products/presentation/pages/DiscountsFormPage";
 import { UsersPage } from "./modules/iam/presentation/pages/UsersPage";
+import { ScheduledDiscountsPage } from "./modules/products/presentation/pages/ScheduledDiscountsPage";
 
 export const router = createBrowserRouter([
   {
@@ -74,6 +75,10 @@ export const router = createBrowserRouter([
       {
         path: "sales/:id",
         element: <SaleDetailPage />,
+      },
+      {
+        path: "products/scheduled-discounts",
+        element: <ScheduledDiscountsPage />,
       },
     ],
   },
