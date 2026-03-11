@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DiscountType } from "../../domain/models/discount.type";
 import {
   isCurrentlyActive,
@@ -108,6 +108,16 @@ export const CampaignProductsModal: React.FC<CampaignProductsModalProps> = ({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
+  const [search, setSearch] = useState("");
+
+  const filteredItems = search.trim()
+    ? campaign.items.filter((item) =>
+        getProductName(item.productId)
+          .toLowerCase()
+          .includes(search.toLowerCase()),
+      )
+    : campaign.items;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -165,27 +175,77 @@ export const CampaignProductsModal: React.FC<CampaignProductsModalProps> = ({
             Productos implicados ({campaign.items.length})
           </h3>
 
-          <div className="space-y-2">
-            {campaign.items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-4 p-3 bg-neutral-50 border border-neutral-100 rounded-xl hover:border-neutral-200 transition-colors"
+          <div className="relative mb-3">
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+              />
+            </svg>
+            <input
+              type="text"
+              placeholder="Buscar producto..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="input w-full pl-9 pr-9"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-neutral-900 truncate">
-                    {getProductName(item.productId)}
-                  </p>
-                  {getBrandName(item.productId) && (
-                    <p className="text-xs text-neutral-500 mt-0.5">
-                      {getBrandName(item.productId)}
-                    </p>
-                  )}
-                </div>
-                <span className="text-xs text-neutral-400 shrink-0">
-                  ID #{item.productId}
-                </span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            {filteredItems.length === 0 ? (
+              <div className="py-5 text-sm text-neutral-500 text-center">
+                No se encontraron productos
               </div>
-            ))}
+            ) : (
+              filteredItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 p-3 bg-neutral-50 border border-neutral-100 rounded-xl hover:border-neutral-200 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-neutral-900 truncate">
+                      {getProductName(item.productId)}
+                    </p>
+                    {getBrandName(item.productId) && (
+                      <p className="text-xs text-neutral-500 mt-0.5">
+                        {getBrandName(item.productId)}
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-xs text-neutral-400 shrink-0">
+                    ID #{item.productId}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
