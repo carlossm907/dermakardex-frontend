@@ -267,7 +267,7 @@ export const DashboardLayout: React.FC = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                         isActive
-                          ? "bg-violet-50 text-violet-700 font-medium"
+                          ? "bg-primary-50 text-primary-700 font-medium"
                           : "text-neutral-600 hover:bg-neutral-50"
                       }`
                     }
