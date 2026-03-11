@@ -59,12 +59,20 @@ export const ScheduledDiscountFormModal: React.FC<Props> = ({
     new Set(),
   );
 
+  const [multipleSearch, setMultipleSearch] = useState("");
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const filteredProducts = productSearch.trim()
     ? products.filter((p) =>
         p.name.toLowerCase().includes(productSearch.toLowerCase()),
+      )
+    : products;
+
+  const filteredMultipleProducts = multipleSearch.trim()
+    ? products.filter((p) =>
+        p.name.toLowerCase().includes(multipleSearch.toLowerCase()),
       )
     : products;
 
@@ -466,28 +474,77 @@ export const ScheduledDiscountFormModal: React.FC<Props> = ({
               {errors.products && (
                 <p className="mb-2 text-sm text-red-600">{errors.products}</p>
               )}
-              <div className="border border-neutral-200 rounded-xl max-h-60 overflow-y-auto divide-y divide-neutral-100">
-                {products.map((p) => (
-                  <label
-                    key={p.id}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-neutral-50 transition-colors"
+              <div className="relative mb-2">
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                  />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Buscar producto..."
+                  value={multipleSearch}
+                  onChange={(e) => setMultipleSearch(e.target.value)}
+                  className="input w-full pl-9 pr-9"
+                />
+                {multipleSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setMultipleSearch("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
                   >
-                    <input
-                      type="checkbox"
-                      checked={selectedProductIds.has(p.id)}
-                      onChange={() => toggleProductSelection(p.id)}
-                      className="w-4 h-4 text-primary-600 rounded"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-neutral-900 truncate">
-                        {p.name}
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              <div className="border border-neutral-200 rounded-xl max-h-60 overflow-y-auto divide-y divide-neutral-100">
+                {filteredMultipleProducts.length === 0 ? (
+                  <div className="px-4 py-5 text-sm text-neutral-500 text-center">
+                    No se encontraron productos
+                  </div>
+                ) : (
+                  filteredMultipleProducts.map((p) => (
+                    <label
+                      key={p.id}
+                      className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-neutral-50 transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedProductIds.has(p.id)}
+                        onChange={() => toggleProductSelection(p.id)}
+                        className="w-4 h-4 text-primary-600 rounded"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-neutral-900 truncate">
+                          {p.name}
+                        </div>
+                        <div className="text-xs text-neutral-500">
+                          S/ {p.salePrice.toFixed(2)} | Stock: {p.stock}
+                        </div>
                       </div>
-                      <div className="text-xs text-neutral-500">
-                        S/ {p.salePrice.toFixed(2)} | Stock: {p.stock}
-                      </div>
-                    </div>
-                  </label>
-                ))}
+                    </label>
+                  ))
+                )}
               </div>
             </div>
           )}
