@@ -44,6 +44,31 @@ export interface SalePaymentResponse {
   amount: number;
 }
 
+export interface SaleReportProductResponse {
+  productId: number;
+  productName: string;
+  presentation: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export interface SaleReportItemResponse {
+  saleId: number;
+  ticketNumber: string;
+  saleDate: string;
+  saleTime: string;
+  finalAmount: number;
+  items: SaleReportProductResponse[];
+}
+
+export interface SalesGroupedByCustomerReportResponse {
+  customerFullName: string;
+  customerDni: string;
+  customerTotalAmount: number;
+  sales: SaleReportItemResponse[];
+}
+
 export interface RegisterSaleRequest {
   customerDni: string;
   observation?: string;
@@ -114,6 +139,25 @@ export const salesApi = {
     data: RegisterSaleRequest,
   ): Promise<SaleDetailResponse> => {
     const response = await apiClient.post<SaleDetailResponse>(`/sales`, data);
+    return response.data;
+  },
+
+  getSalesReportByDay: async (
+    date: string,
+  ): Promise<SalesGroupedByCustomerReportResponse[]> => {
+    const response = await apiClient.get<
+      SalesGroupedByCustomerReportResponse[]
+    >(`/sales/report/day/${date}`);
+    return response.data;
+  },
+
+  getSalesReportByMonth: async (
+    year: number,
+    month: number,
+  ): Promise<SalesGroupedByCustomerReportResponse[]> => {
+    const response = await apiClient.get<
+      SalesGroupedByCustomerReportResponse[]
+    >(`/sales/report/month/${year}/${month}`);
     return response.data;
   },
 };
