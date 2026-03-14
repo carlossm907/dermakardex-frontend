@@ -10,9 +10,12 @@ import {
   saleMapper,
 } from "../../infrastructure/mappers/sale.mapper";
 import { dniLookupService } from "../../infrastructure/services/dni-lookup.service";
+import type { SalesGroupedByCustomerReport } from "../../domain/models/sales-report.model";
+import { salesReportMapper } from "../../infrastructure/mappers/sale-report.mapper";
 
 interface SaleState {
   sales: SaleListItem[];
+  salesReport: SalesGroupedByCustomerReport[];
   selectedSale: Sale | null;
   isLoading: boolean;
   error: string | null;
@@ -24,6 +27,8 @@ interface SaleState {
   fetchSalesByProductId: (productId: number) => Promise<void>;
   fetchSalesByDay: (date: string) => Promise<void>;
   fetchSalesByMonth: (year: number, month: number) => Promise<void>;
+  fetchSalesReportByDay: (date: string) => Promise<void>;
+  fetchSalesReportByMonth: (year: number, month: number) => Promise<void>;
 
   registerSale: (data: CreateSaleData) => Promise<Sale>;
 
@@ -33,6 +38,7 @@ interface SaleState {
 
 export const useSaleStore = create<SaleState>((set) => ({
   sales: [],
+  salesReport: [],
   selectedSale: null,
   isLoading: false,
   error: null,
@@ -239,6 +245,57 @@ export const useSaleStore = create<SaleState>((set) => ({
       });
 
       throw new Error(message);
+    }
+  },
+
+  fetchSalesReportByDay: async (date: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await salesApi.getSalesReportByDay(date);
+
+      const report = salesReportMapper.toDomainList(response);
+
+      set({
+        salesReport: report,
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error al cargar reporte de ventas";
+
+      set({
+        error: message,
+        isLoading: false,
+      });
+    }
+  },
+
+  fetchSalesReportByMonth: async (year: number, month: number) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await salesApi.getSalesReportByMonth(year, month);
+      console.log("REPORT RESPONSE", response);
+
+      const report = salesReportMapper.toDomainList(response);
+
+      set({
+        salesReport: report,
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error al cargar reporte mensual";
+
+      set({
+        error: message,
+        isLoading: false,
+      });
     }
   },
 
