@@ -55,6 +55,16 @@ export interface StockEntryResponse {
   registeredAt: string;
 }
 
+export interface StockReportResponse {
+  productId: number;
+  productName: string;
+  date: string;
+  initialStock: number;
+  entries: number;
+  sold: number;
+  finalStock: number;
+}
+
 export interface CreateProductRequest {
   code: string;
   name: string;
@@ -149,6 +159,18 @@ export interface UpdateScheduledDiscountRequest {
   startsAt: string;
   endsAt: string;
 }
+
+const serializeParams = (params: Record<string, unknown>): string => {
+  const parts: string[] = [];
+  for (const [key, value] of Object.entries(params)) {
+    if (Array.isArray(value)) {
+      value.forEach((v) => parts.push(`${key}=${encodeURIComponent(v)}`));
+    } else if (value !== undefined && value !== null) {
+      parts.push(`${key}=${encodeURIComponent(String(value))}`);
+    }
+  }
+  return parts.join("&");
+};
 
 export const productsApi = {
   getProducts: async (name?: string): Promise<ProductResponse[]> => {
@@ -453,5 +475,42 @@ export const productsApi = {
 
   cleanupExpiredScheduledDiscount: async (): Promise<void> => {
     await apiClient.post("/product-discounts/cleanup-expired");
+  },
+
+  // Stock Report
+
+  getSingleProductReport: async (
+    productId: number,
+    from: string,
+    to: string,
+  ): Promise<StockReportResponse[]> => {
+    const response = await apiClient.get<StockReportResponse[]>(
+      `/products/${productId}/stock-report`,
+      { params: { from, to } },
+    );
+    return response.data;
+  },
+
+  getAllProductsReport: async (
+    from: string,
+    to: string,
+  ): Promise<StockReportResponse[]> => {
+    const response = await apiClient.get<StockReportResponse[]>(
+      `/products/stock-report`,
+      { params: { from, to } },
+    );
+    return response.data;
+  },
+
+  getSelectedProductsReport: async (
+    productIds: number[],
+    from: string,
+    to: string,
+  ): Promise<StockReportResponse[]> => {
+    const queryString = serializeParams({ productIds, from, to });
+    const response = await apiClient.get<StockReportResponse[]>(
+      `/products/stock-report/products?${queryString}`,
+    );
+    return response.data;
   },
 };
