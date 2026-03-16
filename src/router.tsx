@@ -14,6 +14,7 @@ import { DiscountsPage } from "./modules/products/presentation/pages/DiscountsPa
 import { DiscountsFormPage } from "./modules/products/presentation/pages/DiscountsFormPage";
 import { UsersPage } from "./modules/iam/presentation/pages/UsersPage";
 import { ScheduledDiscountsPage } from "./modules/products/presentation/pages/ScheduledDiscountsPage";
+import { StockReportPage } from "./modules/products/presentation/pages/StockReportPage";
 
 export const router = createBrowserRouter([
   {
@@ -79,6 +80,10 @@ export const router = createBrowserRouter([
       {
         path: "products/scheduled-discounts",
         element: <ScheduledDiscountsPage />,
+      },
+      {
+        path: "/products/stock-report",
+        element: <StockReportPage />,
       },
     ],
   },
