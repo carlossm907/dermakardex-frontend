@@ -236,33 +236,6 @@ export const DashboardLayout: React.FC = () => {
                     </svg>
                     Entradas de Stock
                   </NavLink>
-
-                  <NavLink
-                    to="/products/stock-report"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
-                        isActive
-                          ? "bg-primary-50 text-primary-600 font-medium"
-                          : "text-neutral-600 hover:bg-neutral-50"
-                      }`
-                    }
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    Reporte de Stock
-                  </NavLink>
-
                   <NavLink
                     to="/products/discounts"
                     className={({ isActive }) =>
@@ -393,14 +366,92 @@ export const DashboardLayout: React.FC = () => {
                     </svg>
                     Listado de Ventas
                   </NavLink>
+                </div>
+              )}
+            </div>
 
+            {/* Reportes Section */}
+            <div className="mb-2">
+              <button
+                onClick={() => toggleSubmenu("reportes")}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                  isSubmenuActive(["/reports"])
+                    ? "bg-amber-50 text-amber-600"
+                    : "text-neutral-700 hover:bg-neutral-100"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <svg
+                    className="w-5 h-5 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  {isSidebarOpen && (
+                    <span className="font-medium text-sm">Reportes</span>
+                  )}
+                </div>
+                {isSidebarOpen && (
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      openSubmenu === "reportes" ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                )}
+              </button>
+
+              {/* Submenu Reportes */}
+              {isSidebarOpen && openSubmenu === "reportes" && (
+                <div className="mt-1 ml-4 space-y-1 border-l-2 border-neutral-200 pl-4">
                   <NavLink
-                    to="/sales/report"
+                    to="/reports/stock-report"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        isActive
+                          ? "bg-amber-50 text-amber-600 font-medium"
+                          : "text-neutral-600 hover:bg-neutral-50"
+                      }`
+                    }
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    Reporte de Stock
+                  </NavLink>
+                  <NavLink
+                    to="/reports/sales-report"
                     end
                     className={({ isActive }) =>
                       `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                         isActive
-                          ? "bg-green-50 text-green-600 font-medium"
+                          ? "bg-amber-50 text-amber-600 font-medium"
                           : "text-neutral-600 hover:bg-neutral-50"
                       }`
                     }
@@ -419,6 +470,31 @@ export const DashboardLayout: React.FC = () => {
                       />
                     </svg>
                     Reporte de Ventas
+                  </NavLink>
+                  <NavLink
+                    to="/reports/sales-by-client"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        isActive
+                          ? "bg-amber-50 text-amber-600 font-medium"
+                          : "text-neutral-600 hover:bg-neutral-50"
+                      }`
+                    }
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    Ventas por Cliente
                   </NavLink>
                 </div>
               )}
@@ -501,9 +577,11 @@ export const DashboardLayout: React.FC = () => {
                     ? "Dashboard"
                     : location.pathname.includes("/products")
                       ? "Productos"
-                      : location.pathname.includes("/sales")
-                        ? "Ventas"
-                        : "DermaKardex"}
+                      : location.pathname.includes("/reports")
+                        ? "Reportes"
+                        : location.pathname.includes("/sales")
+                          ? "Ventas"
+                          : "DermaKardex"}
                 </h1>
               </div>
 
