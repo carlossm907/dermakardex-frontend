@@ -74,12 +74,6 @@ export const StockReportDateRange: React.FC<StockReportDateRangeProps> = ({
           </svg>
           Hoy
         </Button>
-
-        {from === to && (
-          <span className="text-xs text-primary-600 bg-primary-50 px-2.5 py-1 rounded-full font-medium">
-            Stock del día actual
-          </span>
-        )}
       </div>
     </div>
   );
