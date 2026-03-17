@@ -126,6 +126,14 @@ export interface ScheduledDiscountResponse {
   isActive: boolean;
 }
 
+export interface SalesReportResponse {
+  productId: number;
+  productName: string;
+  from: string;
+  to: string;
+  quantity: number;
+}
+
 export interface ScheduleDiscountRequest {
   productId: number;
   name: string;
@@ -510,6 +518,43 @@ export const productsApi = {
     const queryString = serializeParams({ productIds, from, to });
     const response = await apiClient.get<StockReportResponse[]>(
       `/products/stock-report/products?${queryString}`,
+    );
+    return response.data;
+  },
+
+  // Sales Products Report
+
+  getSingleProductSalesReport: async (
+    productId: number,
+    from: string,
+    to: string,
+  ): Promise<SalesReportResponse[]> => {
+    const response = await apiClient.get<SalesReportResponse[]>(
+      `/sales-report/product`,
+      { params: { productId, from, to } },
+    );
+    return response.data;
+  },
+
+  getSelectedProductsSalesReport: async (
+    productIds: number[],
+    from: string,
+    to: string,
+  ): Promise<SalesReportResponse[]> => {
+    const queryString = serializeParams({ productIds, from, to });
+    const response = await apiClient.get<SalesReportResponse[]>(
+      `/sales-report/bulk?${queryString}`,
+    );
+    return response.data;
+  },
+
+  getAllProductsSalesReport: async (
+    from: string,
+    to: string,
+  ): Promise<SalesReportResponse[]> => {
+    const response = await apiClient.get<SalesReportResponse[]>(
+      `/sales-report/all`,
+      { params: { from, to } },
     );
     return response.data;
   },
