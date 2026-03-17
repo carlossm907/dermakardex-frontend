@@ -52,13 +52,13 @@ export const SalesReportProductSelector: React.FC<
                     type="button"
                     onClick={() => onSelectSingle(isSelected ? null : p.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-neutral-50 ${
-                      isSelected ? "bg-green-50" : ""
+                      isSelected ? "bg-primary-50" : ""
                     }`}
                   >
                     <span
                       className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
                         isSelected
-                          ? "border-green-600 bg-green-600"
+                          ? "border-primary-600 bg-primary-600"
                           : "border-neutral-300"
                       }`}
                     >
@@ -69,7 +69,7 @@ export const SalesReportProductSelector: React.FC<
                     <span
                       className={`text-sm ${
                         isSelected
-                          ? "text-green-700 font-medium"
+                          ? "text-primary-700 font-medium"
                           : "text-neutral-700"
                       }`}
                     >
@@ -81,7 +81,7 @@ export const SalesReportProductSelector: React.FC<
             )}
           </div>
           {selectedProductId && (
-            <p className="text-xs text-green-600">
+            <p className="text-xs text-primary-600">
               Seleccionado:{" "}
               <span className="font-medium">
                 {products.find((p) => p.id === selectedProductId)?.name}
@@ -99,7 +99,7 @@ export const SalesReportProductSelector: React.FC<
       <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">
         Productos{" "}
         {selectedProductIds.length > 0 && (
-          <span className="ml-1 text-green-600 normal-case font-normal">
+          <span className="ml-1 text-primary-600 normal-case font-normal">
             ({selectedProductIds.length} seleccionados)
           </span>
         )}
@@ -118,19 +118,19 @@ export const SalesReportProductSelector: React.FC<
                 <label
                   key={p.id}
                   className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors hover:bg-neutral-50 ${
-                    checked ? "bg-green-50" : ""
+                    checked ? "bg-primary-50" : ""
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={checked}
                     onChange={() => onToggleMultiple(p.id)}
-                    className="accent-green-600 w-4 h-4 rounded flex-shrink-0"
+                    className="accent-primary-600 w-4 h-4 rounded flex-shrink-0"
                   />
                   <span
                     className={`text-sm ${
                       checked
-                        ? "text-green-700 font-medium"
+                        ? "text-primary-700 font-medium"
                         : "text-neutral-700"
                     }`}
                   >

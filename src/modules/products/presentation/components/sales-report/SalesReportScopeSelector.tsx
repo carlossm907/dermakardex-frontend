@@ -87,7 +87,7 @@ export const SalesReportScopeSelector: React.FC<
             onClick={() => onChange(option.value)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
               value === option.value
-                ? "bg-green-50 text-green-700 border-green-200"
+                ? "bg-primary-50 text-primary-600 border-primary-200"
                 : "bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50"
             }`}
           >
