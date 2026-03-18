@@ -134,6 +134,14 @@ export interface SalesReportResponse {
   quantity: number;
 }
 
+export interface EntriesReportResponse {
+  productId: number;
+  productName: string;
+  from: string;
+  to: string;
+  quantity: number;
+}
+
 export interface ScheduleDiscountRequest {
   productId: number;
   name: string;
@@ -555,6 +563,43 @@ export const productsApi = {
     const response = await apiClient.get<SalesReportResponse[]>(
       `/sales-report/all`,
       { params: { from, to } },
+    );
+    return response.data;
+  },
+
+  // Entries Product Report
+
+  getSingleProductEntriesReport: async (
+    productId: number,
+    from: string,
+    to: string,
+  ): Promise<EntriesReportResponse[]> => {
+    const response = await apiClient.get<EntriesReportResponse[]>(
+      `/entries-report/product`,
+      { params: { productId, from, to } },
+    );
+    return response.data;
+  },
+
+  getAllProductsEntriesReport: async (
+    from: string,
+    to: string,
+  ): Promise<EntriesReportResponse[]> => {
+    const response = await apiClient.get<EntriesReportResponse[]>(
+      `/entries-report/all`,
+      { params: { from, to } },
+    );
+    return response.data;
+  },
+
+  getSelectedProductsEntriesReport: async (
+    productIds: number[],
+    from: string,
+    to: string,
+  ): Promise<EntriesReportResponse[]> => {
+    const queryString = serializeParams({ productIds, from, to });
+    const response = await apiClient.get<EntriesReportResponse[]>(
+      `/entries-report/bulk?${queryString}`,
     );
     return response.data;
   },
