@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { useSalesReportStore } from "../../application/stores/sales-report.store";
-import type { SalesReportScope } from "../../domain/models/sales-report.model";
+import type {
+  SalesReportDateMode,
+  SalesReportScope,
+} from "../../domain/models/sales-report.model";
 import { SalesReportTable } from "../components/sales-report/SalesReportTable";
 import { Button } from "@/shared/components/ui/Button";
 import { Card } from "@/shared/components/ui/Card";
-import { SalesReportDateRange } from "../components/sales-report/SalesReportDateRange";
 import { SalesReportProductSelector } from "../components/sales-report/SalesReportProductSelector";
 import { SalesReportScopeSelector } from "../components/sales-report/SalesReportScopeSelector";
 import { generateSalesProductReportPdf } from "../../utils/generateSalesProductReportPdf";
 import { useProductStore } from "../../application/stores/product.store";
 import { LoadingSpinner } from "../components/LoadingSpinner";
+import { SalesReportDateSelector } from "../components/sales-report/SalesReportDateSelector";
 
 const todayISO = (): string => {
   const d = new Date();
@@ -33,6 +36,7 @@ export const SalesReportPage: React.FC = () => {
   } = useSalesReportStore();
 
   const [scope, setScope] = useState<SalesReportScope>("all");
+  const [dateMode, setDateMode] = useState<SalesReportDateMode>("day");
   const [from, setFrom] = useState<string>(todayISO());
   const [to, setTo] = useState<string>(todayISO());
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
@@ -137,9 +141,11 @@ export const SalesReportPage: React.FC = () => {
             onToggleMultiple={handleToggleMultiple}
           />
 
-          <SalesReportDateRange
+          <SalesReportDateSelector
             from={from}
             to={to}
+            mode={dateMode}
+            onModeChange={setDateMode}
             onFromChange={setFrom}
             onToChange={setTo}
             onSetToday={handleSetToday}
@@ -240,7 +246,13 @@ export const SalesReportPage: React.FC = () => {
                   </p>
                 </div>
               )}
-              <SalesReportTable report={report} isSingleDay={isSingleDay} />
+              <SalesReportTable
+                report={report}
+                isSingleDay={isSingleDay}
+                dateMode={dateMode}
+                from={from}
+                to={to}
+              />
             </>
           ) : (
             <div className="text-center py-14">

@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { useStockReportStore } from "../../application/stores/stock-report.store";
-import type { StockReportScope } from "../../domain/models/stock-report.model";
+import type {
+  StockReportDateMode,
+  StockReportScope,
+} from "../../domain/models/stock-report.model";
 import { Card } from "@/shared/components/ui/Card";
 import { StockReportTable } from "../components/stock-report/StockReportTable";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { Button } from "@/shared/components/ui/Button";
-import { StockReportDateRange } from "../components/stock-report/StockReportDateRange";
 import { StockReportScopeSelector } from "../components/stock-report/StockReportScopeSelector";
 import { StockReportProductSelector } from "../components/stock-report/StockReportProductSelector";
 import { useProductStore } from "../../application/stores/product.store";
 import { generateStockReportPdf } from "../../utils/generateSalesReportPdf";
+import { StockReportDateSelector } from "../components/stock-report/StockReportDateSelector";
 
 const todayISO = (): string => {
   const d = new Date();
@@ -33,6 +36,7 @@ export const StockReportPage: React.FC = () => {
   } = useStockReportStore();
 
   const [scope, setScope] = useState<StockReportScope>("all");
+  const [dateMode, setDateMode] = useState<StockReportDateMode>("day");
   const [from, setFrom] = useState<string>(todayISO());
   const [to, setTo] = useState<string>(todayISO());
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
@@ -96,13 +100,39 @@ export const StockReportPage: React.FC = () => {
 
   const isSingleDay = from === to;
 
+  const MONTHS = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
   const reportTitle = (): string | null => {
     if (!hasSearched) return null;
+
     const fmt = (d: string) => {
       const [y, m, day] = d.split("-");
       return `${day}/${m}/${y}`;
     };
-    if (isSingleDay) return `Stock del día ${fmt(from)}`;
+
+    const [year, month] = from.split("-");
+
+    if (dateMode === "month") {
+      return `Stock del mes de ${MONTHS[parseInt(month) - 1]} del ${year}`;
+    }
+
+    if (isSingleDay) {
+      return `Stock del día ${fmt(from)}`;
+    }
+
     return `Stock del ${fmt(from)} al ${fmt(to)}`;
   };
 
@@ -138,9 +168,11 @@ export const StockReportPage: React.FC = () => {
             onToggleMultiple={handleToggleMultiple}
           />
 
-          <StockReportDateRange
+          <StockReportDateSelector
             from={from}
             to={to}
+            mode={dateMode}
+            onModeChange={setDateMode}
             onFromChange={setFrom}
             onToChange={setTo}
             onSetToday={handleSetToday}
@@ -242,7 +274,13 @@ export const StockReportPage: React.FC = () => {
                   </p>
                 </div>
               )}
-              <StockReportTable report={report} isSingleDay={isSingleDay} />
+              <StockReportTable
+                report={report}
+                isSingleDay={isSingleDay}
+                dateMode={dateMode}
+                from={from}
+                to={to}
+              />
             </>
           ) : (
             <div className="text-center py-14">
