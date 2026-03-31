@@ -9,3 +9,5 @@ export interface StockReport {
 }
 
 export type StockReportScope = "all" | "single" | "multiple";
+
+export type StockReportDateMode = "day" | "month" | "range";

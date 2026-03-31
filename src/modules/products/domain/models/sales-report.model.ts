@@ -7,3 +7,5 @@ export interface SalesReport {
 }
 
 export type SalesReportScope = "all" | "single" | "multiple";
+
+export type SalesReportDateMode = "day" | "month" | "range";
