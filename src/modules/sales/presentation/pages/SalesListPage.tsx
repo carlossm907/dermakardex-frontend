@@ -18,8 +18,6 @@ import { PaymentForm } from "../components/PaymentForm";
 import { productsApi } from "@/modules/products/infrastructure/api/products.api";
 import { generateSaleTicketPdf } from "../../utils/generateSaleTicketPdf";
 import { useScheduledDiscountStore } from "@/modules/products/application/stores/scheduled-discount.store";
-import { SaleReportTable } from "../components/SaleReportTable";
-import { generateSalesReportPdf } from "../../utils/generateSalesReportPdf";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(
@@ -46,28 +44,17 @@ export const SaleListPage: React.FC = () => {
 
   const {
     sales,
-    salesReport,
     isLoading,
     fetchSales,
     fetchSalesByDay,
     fetchSalesByMonth,
     fetchSalesByCustomerDni,
     registerSale,
-    fetchSalesReportByDay,
-    fetchSalesReportByMonth,
   } = useSaleStore();
 
   const { discounts, fetchActive } = useScheduledDiscountStore();
 
   const { products, fetchProducts } = useProductStore();
-
-  const [showReport, setShowReport] = useState(false);
-  type ReportInfo =
-    | { type: "day"; date: string }
-    | { type: "month"; year: number; month: number }
-    | null;
-
-  const [reportInfo, setReportInfo] = useState<ReportInfo>(null);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -350,31 +337,7 @@ export const SaleListPage: React.FC = () => {
     setErrors({});
   };
 
-  const handleReportByDay = async (date: string) => {
-    setShowReport(true);
-
-    setReportInfo({
-      type: "day",
-      date,
-    });
-
-    await fetchSalesReportByDay(date);
-  };
-
-  const handleReportByMonth = async (year: number, month: number) => {
-    setShowReport(true);
-
-    setReportInfo({
-      type: "month",
-      year,
-      month,
-    });
-
-    await fetchSalesReportByMonth(year, month);
-  };
-
   const handleFilterAll = () => {
-    setShowReport(false);
     fetchSales();
   };
 
@@ -497,146 +460,127 @@ export const SaleListPage: React.FC = () => {
         onFilterByDay={fetchSalesByDay}
         onFilterByMonth={fetchSalesByMonth}
         onFilterByCustomer={fetchSalesByCustomerDni}
-        onReportByDay={handleReportByDay}
-        onReportByMonth={handleReportByMonth}
         isLoading={isLoading}
-        showPrintButton={showReport}
-        onPrintReport={() => {
-          if (reportInfo) {
-            generateSalesReportPdf(salesReport, reportInfo);
-          }
-        }}
       />
 
       {/* Lista de ventas o reporte */}
       <div className="mt-6">
-        {showReport ? (
-          isLoading ? (
-            <Card>
-              <LoadingSpinner message="Cargando reporte..." />
-            </Card>
+        {" "}
+        <Card>
+          {isLoading ? (
+            <LoadingSpinner message="Cargando ventas..." />
+          ) : sales.length === 0 ? (
+            <EmptyState
+              icon={
+                <svg
+                  className="w-16 h-16 text-neutral-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              }
+              title="No hay ventas registradas"
+              description="Comienza registrando tu primera venta."
+              actionLabel="Nueva Venta"
+              onAction={handleOpenModal}
+            />
           ) : (
-            <Card>
-              <SaleReportTable report={salesReport} />
-            </Card>
-          )
-        ) : (
-          <Card>
-            {isLoading ? (
-              <LoadingSpinner message="Cargando ventas..." />
-            ) : sales.length === 0 ? (
-              <EmptyState
-                icon={
-                  <svg
-                    className="w-16 h-16 text-neutral-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                }
-                title="No hay ventas registradas"
-                description="Comienza registrando tu primera venta."
-                actionLabel="Nueva Venta"
-                onAction={handleOpenModal}
-              />
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-neutral-200 bg-neutral-50">
-                      <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                        Ticket
-                      </th>
-                      <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                        Cliente
-                      </th>
-                      <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                        Fecha
-                      </th>
-                      <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                        Hora
-                      </th>
-                      <th className="text-right p-4 text-sm font-semibold text-neutral-700">
-                        Total
-                      </th>
-                      <th className="text-center p-4 text-sm font-semibold text-neutral-700">
-                        Estado
-                      </th>
-                      <th className="text-right p-4 text-sm font-semibold text-neutral-700">
-                        Acciones
-                      </th>
-                      <th className="text-right p-4 text-sm font-semibold text-neutral-700">
-                        Vendido por
-                      </th>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-neutral-200 bg-neutral-50">
+                    <th className="text-left p-4 text-sm font-semibold text-neutral-700">
+                      Ticket
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-neutral-700">
+                      Cliente
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-neutral-700">
+                      Fecha
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-neutral-700">
+                      Hora
+                    </th>
+                    <th className="text-right p-4 text-sm font-semibold text-neutral-700">
+                      Total
+                    </th>
+                    <th className="text-center p-4 text-sm font-semibold text-neutral-700">
+                      Estado
+                    </th>
+                    <th className="text-right p-4 text-sm font-semibold text-neutral-700">
+                      Acciones
+                    </th>
+                    <th className="text-right p-4 text-sm font-semibold text-neutral-700">
+                      Vendido por
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sales.map((sale) => (
+                    <tr
+                      key={sale.id}
+                      className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors"
+                    >
+                      <td className="p-4">
+                        <span className="font-mono font-semibold text-neutral-900">
+                          {sale.ticketNumber}
+                        </span>
+                      </td>
+
+                      <td className="p-4">
+                        <span className="text-sm text-neutral-900">
+                          {sale.customerFullName}
+                        </span>
+                      </td>
+
+                      <td className="p-4">
+                        <span className="text-sm text-neutral-600">
+                          {formatDate(sale.saleDate)}
+                        </span>
+                      </td>
+
+                      <td className="p-4">
+                        <span className="text-sm text-neutral-600">
+                          {formatTime(sale.saleTime)}
+                        </span>
+                      </td>
+
+                      <td className="p-4 text-right">
+                        <span className="font-semibold text-green-700">
+                          {formatCurrency(sale.total)}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        <SaleStatusBadge status={sale.status} />
+                      </td>
+                      <td className="p-4 text-right">
+                        <Button
+                          variant="secondary"
+                          className="text-sm"
+                          onClick={() => navigate(`/sales/${sale.id}`)}
+                        >
+                          Ver Detalle
+                        </Button>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-sm text-neutral-600">
+                          {sale.sellerFullName}
+                        </span>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {sales.map((sale) => (
-                      <tr
-                        key={sale.id}
-                        className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors"
-                      >
-                        <td className="p-4">
-                          <span className="font-mono font-semibold text-neutral-900">
-                            {sale.ticketNumber}
-                          </span>
-                        </td>
-
-                        <td className="p-4">
-                          <span className="text-sm text-neutral-900">
-                            {sale.customerFullName}
-                          </span>
-                        </td>
-
-                        <td className="p-4">
-                          <span className="text-sm text-neutral-600">
-                            {formatDate(sale.saleDate)}
-                          </span>
-                        </td>
-
-                        <td className="p-4">
-                          <span className="text-sm text-neutral-600">
-                            {formatTime(sale.saleTime)}
-                          </span>
-                        </td>
-
-                        <td className="p-4 text-right">
-                          <span className="font-semibold text-green-700">
-                            {formatCurrency(sale.total)}
-                          </span>
-                        </td>
-                        <td className="p-4 text-center">
-                          <SaleStatusBadge status={sale.status} />
-                        </td>
-                        <td className="p-4 text-right">
-                          <Button
-                            variant="secondary"
-                            className="text-sm"
-                            onClick={() => navigate(`/sales/${sale.id}`)}
-                          >
-                            Ver Detalle
-                          </Button>
-                        </td>
-                        <td className="p-4">
-                          <span className="text-sm text-neutral-600">
-                            {sale.sellerFullName}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
-        )}
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
       </div>
 
       {/* Modal de Nueva Venta */}

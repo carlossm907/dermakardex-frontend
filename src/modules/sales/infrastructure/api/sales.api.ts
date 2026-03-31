@@ -69,6 +69,42 @@ export interface SalesGroupedByCustomerReportResponse {
   sales: SaleReportItemResponse[];
 }
 
+export interface SaleTimelinePaymentResponse {
+  method: string;
+  amount: number;
+}
+
+export interface SaleTimelineProductResponse {
+  productId: number;
+  productName: string;
+  presentation: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export interface SaleTimelineItemResponse {
+  saleId: number;
+  ticketNumber: string;
+  customerFullName: string;
+  saleDate: string;
+  saleTime: string;
+  total: number;
+  items: SaleTimelineProductResponse[];
+  payments: SaleTimelinePaymentResponse[];
+}
+
+export interface SaleTimelineSellerBlockResponse {
+  sellerUserId: number;
+  sellerFullName: string;
+  sales: SaleTimelineItemResponse[];
+}
+
+export interface SalesTimelineByDayResponse {
+  date: string;
+  blocks: SaleTimelineSellerBlockResponse[];
+}
+
 export interface RegisterSaleRequest {
   customerDni: string;
   observation?: string;
@@ -158,6 +194,16 @@ export const salesApi = {
     const response = await apiClient.get<
       SalesGroupedByCustomerReportResponse[]
     >(`/sales/report/month/${year}/${month}`);
+    return response.data;
+  },
+
+  getSalesTimelineByMonth: async (
+    year: number,
+    month: number,
+  ): Promise<SalesTimelineByDayResponse[]> => {
+    const response = await apiClient.get<SalesTimelineByDayResponse[]>(
+      `/sales/report/month/timeline/${year}/${month}`,
+    );
     return response.data;
   },
 };
