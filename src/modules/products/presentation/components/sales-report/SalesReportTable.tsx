@@ -3,23 +3,51 @@ import type { SalesReport } from "@/modules/products/domain/models/sales-report.
 interface SalesReportTableProps {
   report: SalesReport[];
   isSingleDay: boolean;
+  dateMode: "day" | "month" | "range";
+  from: string;
+  to: string;
 }
 
-const formatDate = (dateStr: string): string => {
-  const [year, month, day] = dateStr.split("-");
-  return `${day}/${month}/${year}`;
-};
+const MONTHS = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
 
-const formatPeriod = (
+const formatHeaderDate = (
+  dateMode: "day" | "month" | "range",
   from: string,
   to: string,
-  isSingleDay: boolean,
-): string =>
-  isSingleDay ? formatDate(from) : `${formatDate(from)} – ${formatDate(to)}`;
+): string => {
+  const [y1, m1, d1] = from.split("-");
+  const [y2, m2, d2] = to.split("-");
+
+  if (dateMode === "month") {
+    return `${MONTHS[parseInt(m1) - 1]} ${y1}`;
+  }
+
+  if (dateMode === "range") {
+    return `${d1}/${m1}/${y1} - ${d2}/${m2}/${y2}`;
+  }
+
+  return `${d1}/${m1}/${y1}`;
+};
 
 export const SalesReportTable: React.FC<SalesReportTableProps> = ({
   report,
   isSingleDay,
+  dateMode,
+  from,
+  to,
 }) => {
   if (report.length === 0) {
     return (
@@ -79,9 +107,11 @@ export const SalesReportTable: React.FC<SalesReportTableProps> = ({
                   ID #{item.productId}
                 </div>
               </td>
-              <td className="p-4 text-center text-neutral-600 text-sm">
-                {formatPeriod(item.from, item.to, isSingleDay)}
-              </td>
+              {!isSingleDay && (
+                <td className="p-4 text-neutral-600 text-center">
+                  {formatHeaderDate(dateMode, from, to)}
+                </td>
+              )}
               <td className="p-4 text-center">
                 {item.quantity > 0 ? (
                   <span className="inline-flex items-center gap-0.5 px-3 py-0.5 rounded text-xs font-semibold text-green-700 bg-green-50">

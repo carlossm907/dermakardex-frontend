@@ -3,11 +3,43 @@ import type { StockReport } from "@/modules/products/domain/models/stock-report.
 interface StockReportTableProps {
   report: StockReport[];
   isSingleDay: boolean;
+  dateMode: "day" | "month" | "range";
+  from: string;
+  to: string;
 }
 
-const formatDate = (dateStr: string): string => {
-  const [year, month, day] = dateStr.split("-");
-  return `${day}/${month}/${year}`;
+const MONTHS = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+
+const formatHeaderDate = (
+  dateMode: "day" | "month" | "range",
+  from: string,
+  to: string,
+): string => {
+  const [y1, m1, d1] = from.split("-");
+  const [y2, m2, d2] = to.split("-");
+
+  if (dateMode === "month") {
+    return `${MONTHS[parseInt(m1) - 1]} ${y1}`;
+  }
+
+  if (dateMode === "range") {
+    return `${d1}/${m1}/${y1} - ${d2}/${m2}/${y2}`;
+  }
+
+  return `${d1}/${m1}/${y1}`;
 };
 
 const EntryDelta: React.FC<{ value: number }> = ({ value }) => {
@@ -47,6 +79,9 @@ const FinalStockCell: React.FC<{
 export const StockReportTable: React.FC<StockReportTableProps> = ({
   report,
   isSingleDay,
+  dateMode,
+  from,
+  to,
 }) => {
   if (report.length === 0) {
     return (
@@ -81,7 +116,7 @@ export const StockReportTable: React.FC<StockReportTableProps> = ({
               Producto
             </th>
             {!isSingleDay && (
-              <th className="text-left p-4 font-semibold text-neutral-700">
+              <th className="text-center p-4 font-semibold text-neutral-700">
                 Fecha
               </th>
             )}
@@ -114,8 +149,8 @@ export const StockReportTable: React.FC<StockReportTableProps> = ({
                 </div>
               </td>
               {!isSingleDay && (
-                <td className="p-4 text-neutral-600">
-                  {formatDate(item.date)}
+                <td className="p-4 text-neutral-600 text-center">
+                  {formatHeaderDate(dateMode, from, to)}
                 </td>
               )}
               <td className="p-4 text-center font-medium text-neutral-700">
