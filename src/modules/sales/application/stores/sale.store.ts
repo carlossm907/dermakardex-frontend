@@ -12,10 +12,13 @@ import {
 import { dniLookupService } from "../../infrastructure/services/dni-lookup.service";
 import type { SalesGroupedByCustomerReport } from "../../domain/models/sales-report.model";
 import { salesReportMapper } from "../../infrastructure/mappers/sale-report.mapper";
+import type { SalesTimelineByDay } from "../../domain/models/sales-timeline.model";
+import { salesTimelineMapper } from "../../infrastructure/mappers/sale-timeline.mapper";
 
 interface SaleState {
   sales: SaleListItem[];
   salesReport: SalesGroupedByCustomerReport[];
+  salesTimeline: SalesTimelineByDay[];
   selectedSale: Sale | null;
   isLoading: boolean;
   error: string | null;
@@ -29,6 +32,7 @@ interface SaleState {
   fetchSalesByMonth: (year: number, month: number) => Promise<void>;
   fetchSalesReportByDay: (date: string) => Promise<void>;
   fetchSalesReportByMonth: (year: number, month: number) => Promise<void>;
+  fetchSalesTimeline: (year: number, month: number) => Promise<void>;
 
   registerSale: (data: CreateSaleData) => Promise<Sale>;
 
@@ -39,6 +43,7 @@ interface SaleState {
 export const useSaleStore = create<SaleState>((set) => ({
   sales: [],
   salesReport: [],
+  salesTimeline: [],
   selectedSale: null,
   isLoading: false,
   error: null,
@@ -291,6 +296,31 @@ export const useSaleStore = create<SaleState>((set) => ({
         error instanceof Error
           ? error.message
           : "Error al cargar reporte mensual";
+
+      set({
+        error: message,
+        isLoading: false,
+      });
+    }
+  },
+
+  fetchSalesTimeline: async (year: number, month: number) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await salesApi.getSalesTimelineByMonth(year, month);
+
+      const timeline = salesTimelineMapper.toDomainList(response);
+
+      set({
+        salesTimeline: timeline,
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error al cargar la línea de tiempo";
 
       set({
         error: message,
