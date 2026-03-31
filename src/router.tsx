@@ -18,6 +18,7 @@ import { StockReportPage } from "./modules/products/presentation/pages/StockRepo
 import { SalesReportPage } from "./modules/products/presentation/pages/SalesReportPage";
 import { SalesReportByClientPage } from "./modules/sales/presentation/pages/SalesReportByClientPage";
 import { EntriesReportPage } from "./modules/products/presentation/pages/EntriesReportPage";
+import { SalesTimelinePage } from "./modules/sales/presentation/pages/SalesTimelinePage";
 
 export const router = createBrowserRouter([
   {
@@ -99,6 +100,10 @@ export const router = createBrowserRouter([
       {
         path: "/reports/entries-report",
         element: <EntriesReportPage />,
+      },
+      {
+        path: "/reports/sales-by-seller",
+        element: <SalesTimelinePage />,
       },
     ],
   },
