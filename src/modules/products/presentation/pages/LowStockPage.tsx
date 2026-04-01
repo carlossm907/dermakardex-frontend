@@ -5,7 +5,7 @@ import { useCatalogStore } from "../../application/stores/catalog.store";
 import { Card } from "@/shared/components/ui/Card";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { EmptyState } from "../components/EmptyState";
-import { ProductTable } from "../components/ProductTable";
+import { ProductTable } from "../components/products/ProductTable";
 import { Button } from "@/shared/components/ui/Button";
 
 export const LowStockPage: React.FC = () => {

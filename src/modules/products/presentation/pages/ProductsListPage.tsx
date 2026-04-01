@@ -4,11 +4,11 @@ import { useCatalogStore } from "../../application/stores/catalog.store";
 import { useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/Button";
 import { Card } from "@/shared/components/ui/Card";
-import { ProductSearchBar } from "../components/ProductSearchBar";
+import { ProductSearchBar } from "../components/products/ProductSearchBar";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { EmptyState } from "../components/EmptyState";
-import { ProductTable } from "../components/ProductTable";
-import { ProductFormModal } from "../components/ProductFormModal";
+import { ProductTable } from "../components/products/ProductTable";
+import { ProductFormModal } from "../components/products/ProductFormModal";
 
 export const ProductsListPage: React.FC = () => {
   const navigate = useNavigate();

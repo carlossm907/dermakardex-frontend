@@ -1,6 +1,6 @@
 import { Button } from "@/shared/components/ui/Button";
 import { Card } from "@/shared/components/ui/Card";
-import { PriceDisplay } from "../PriceDisplay";
+import { PriceDisplay } from "../products/PriceDisplay";
 import type { Product } from "@/modules/products/domain/models/product.model";
 import { DiscountBadge } from "../DiscountBadge";
 import { EmptyState } from "../EmptyState";
