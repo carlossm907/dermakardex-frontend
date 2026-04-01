@@ -10,6 +10,8 @@ import { useState } from "react";
 import { ProductDetailModal } from "./ProductDetailModal";
 import { useScheduledDiscountStore } from "../../application/stores/scheduled-discount.store";
 import { ScheduledDiscountBadge } from "./ScheduledDiscountBadge";
+import { usePagination } from "@/shared/hooks/usePagination";
+import { TablePagination } from "@/shared/components/TablePagination";
 
 interface ProductTableProps {
   products: Product[];
@@ -37,13 +39,23 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const getBrandName = (id: number) => {
-    return brands.find((b) => b.id === id)?.name || "N/A";
-  };
+  const {
+    paginatedItems,
+    currentPage,
+    totalPages,
+    totalItems,
+    rangeStart,
+    rangeEnd,
+    pageSize,
+    changePage,
+    changePageSize,
+  } = usePagination(products);
 
-  const getCategoryName = (id: number) => {
-    return categories.find((c) => c.id === id)?.name || "N/A";
-  };
+  const getBrandName = (id: number) =>
+    brands.find((b) => b.id === id)?.name || "N/A";
+
+  const getCategoryName = (id: number) =>
+    categories.find((c) => c.id === id)?.name || "N/A";
 
   const handleEdit = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -105,145 +117,160 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
   return (
     <>
-      <div className={`overflow-x-auto ${className}`}>
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-neutral-200 bg-neutral-50">
-              <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                Producto
-              </th>
-              <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                Marca
-              </th>
-              <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                Categoría
-              </th>
-              <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                Presentación
-              </th>
-              <th className="text-right p-4 text-sm font-semibold text-neutral-700">
-                Precio Venta
-              </th>
-              <th className="text-right p-4 text-sm font-semibold text-neutral-700">
-                Precio Final
-              </th>
-              <th className="text-center p-4 text-sm font-semibold text-neutral-700">
-                Stock
-              </th>
-              <th className="text-center p-4 text-sm font-semibold text-neutral-700">
-                Estado
-              </th>
-              {showActions && (
-                <th className="text-right p-4 text-sm font-semibold text-neutral-700">
-                  Acciones
+      <div className={`${className}`}>
+        {/* TABLE */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-neutral-200 bg-neutral-50">
+                <th className="text-left p-4 text-sm font-semibold text-neutral-700">
+                  Producto
                 </th>
-              )}
-            </tr>
-          </thead>
+                <th className="text-left p-4 text-sm font-semibold text-neutral-700">
+                  Marca
+                </th>
+                <th className="text-left p-4 text-sm font-semibold text-neutral-700">
+                  Categoría
+                </th>
+                <th className="text-left p-4 text-sm font-semibold text-neutral-700">
+                  Presentación
+                </th>
+                <th className="text-right p-4 text-sm font-semibold text-neutral-700">
+                  Precio Venta
+                </th>
+                <th className="text-right p-4 text-sm font-semibold text-neutral-700">
+                  Precio Final
+                </th>
+                <th className="text-center p-4 text-sm font-semibold text-neutral-700">
+                  Stock
+                </th>
+                <th className="text-center p-4 text-sm font-semibold text-neutral-700">
+                  Estado
+                </th>
+                {showActions && (
+                  <th className="text-right p-4 text-sm font-semibold text-neutral-700">
+                    Acciones
+                  </th>
+                )}
+              </tr>
+            </thead>
 
-          <tbody>
-            {products.map((product) => {
-              const scheduled = getActiveScheduledDiscount(product.id);
+            <tbody>
+              {paginatedItems.map((product) => {
+                const scheduled = getActiveScheduledDiscount(product.id);
 
-              return (
-                <tr
-                  key={product.id}
-                  className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors cursor-pointer"
-                  onClick={() => setSelectedProduct(product)}
-                  title="Click para ver detalle"
-                >
-                  <td className="p-4">
-                    <div className="font-medium text-neutral-900">
-                      {product.name}
-                    </div>
+                return (
+                  <tr
+                    key={product.id}
+                    className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors cursor-pointer"
+                    onClick={() => setSelectedProduct(product)}
+                    title="Click para ver detalle"
+                  >
+                    <td className="p-4">
+                      <div className="font-medium text-neutral-900">
+                        {product.name}
+                      </div>
 
-                    {scheduled ? (
-                      <ScheduledDiscountBadge
-                        name={scheduled.name}
-                        discountType={scheduled.discountType}
-                        discountValue={scheduled.discountValue}
-                        className="mt-1"
-                      />
-                    ) : (
-                      <DiscountBadge
-                        discountType={product.discountType}
-                        discountValue={product.discountValue}
-                        className="mt-1"
-                      />
-                    )}
-                  </td>
-
-                  <td className="p-4 text-sm text-neutral-600">
-                    {getBrandName(product.brandId)}
-                  </td>
-
-                  <td className="p-4 text-sm text-neutral-600">
-                    {getCategoryName(product.categoryId)}
-                  </td>
-
-                  <td className="p-4 text-sm text-neutral-600">
-                    {product.presentation}
-                  </td>
-
-                  <td className="p-4 text-right">
-                    <PriceDisplay
-                      price={product.salePrice}
-                      className="justify-end"
-                    />
-                  </td>
-
-                  <td className="p-4 text-right">
-                    {scheduled ? (
-                      <PriceDisplay
-                        price={calculateScheduledPrice(
-                          product.salePrice,
-                          scheduled.discountType,
-                          scheduled.discountValue,
-                        )}
-                        originalPrice={product.salePrice}
-                        showDiscount={true}
-                        className="justify-end"
-                      />
-                    ) : (
-                      <PriceDisplay
-                        price={product.finalPrice}
-                        originalPrice={product.salePrice}
-                        showDiscount={product.discountType !== 0}
-                        className="justify-end"
-                      />
-                    )}
-                  </td>
-
-                  <td className="p-4 text-center">
-                    <StockBadge
-                      stock={product.stock}
-                      status={getStockStatus(
-                        product.stock,
-                        product.stockAlertThreshold,
+                      {scheduled ? (
+                        <ScheduledDiscountBadge
+                          name={scheduled.name}
+                          discountType={scheduled.discountType}
+                          discountValue={scheduled.discountValue}
+                          className="mt-1"
+                        />
+                      ) : (
+                        <DiscountBadge
+                          discountType={product.discountType}
+                          discountValue={product.discountValue}
+                          className="mt-1"
+                        />
                       )}
-                    />
-                  </td>
-
-                  <td className="p-4 text-center">
-                    <StatusBadge isActive={product.isActive} />
-                  </td>
-
-                  {showActions && (
-                    <td className="p-4 text-right">
-                      <Button
-                        variant="secondary"
-                        className="text-sm"
-                        onClick={(e) => handleEdit(product, e)}
-                      >
-                        Editar
-                      </Button>
                     </td>
-                  )}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+
+                    <td className="p-4 text-sm text-neutral-600">
+                      {getBrandName(product.brandId)}
+                    </td>
+
+                    <td className="p-4 text-sm text-neutral-600">
+                      {getCategoryName(product.categoryId)}
+                    </td>
+
+                    <td className="p-4 text-sm text-neutral-600">
+                      {product.presentation}
+                    </td>
+
+                    <td className="p-4 text-right">
+                      <PriceDisplay
+                        price={product.salePrice}
+                        className="justify-end"
+                      />
+                    </td>
+
+                    <td className="p-4 text-right">
+                      {scheduled ? (
+                        <PriceDisplay
+                          price={calculateScheduledPrice(
+                            product.salePrice,
+                            scheduled.discountType,
+                            scheduled.discountValue,
+                          )}
+                          originalPrice={product.salePrice}
+                          showDiscount={true}
+                          className="justify-end"
+                        />
+                      ) : (
+                        <PriceDisplay
+                          price={product.finalPrice}
+                          originalPrice={product.salePrice}
+                          showDiscount={product.discountType !== 0}
+                          className="justify-end"
+                        />
+                      )}
+                    </td>
+
+                    <td className="p-4 text-center">
+                      <StockBadge
+                        stock={product.stock}
+                        status={getStockStatus(
+                          product.stock,
+                          product.stockAlertThreshold,
+                        )}
+                      />
+                    </td>
+
+                    <td className="p-4 text-center">
+                      <StatusBadge isActive={product.isActive} />
+                    </td>
+
+                    {showActions && (
+                      <td className="p-4 text-right">
+                        <Button
+                          variant="secondary"
+                          className="text-sm"
+                          onClick={(e) => handleEdit(product, e)}
+                        >
+                          Editar
+                        </Button>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* PAGINACIÓN */}
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          pageSize={pageSize}
+          rangeStart={rangeStart}
+          rangeEnd={rangeEnd}
+          onPageChange={changePage}
+          onPageSizeChange={changePageSize}
+        />
       </div>
 
       <ProductDetailModal
