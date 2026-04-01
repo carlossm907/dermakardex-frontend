@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { getStockStatus } from "../../domain/models/product.model";
-import type { Product } from "../../domain/models/product.model";
-import { DiscountBadge } from "./DiscountBadge";
+import { getStockStatus } from "../../../domain/models/product.model";
+import type { Product } from "../../../domain/models/product.model";
+import { DiscountBadge } from "../DiscountBadge";
 import { PriceDisplay } from "./PriceDisplay";
-import { StockBadge } from "./StockBadge";
-import { StatusBadge } from "./StatusBadge";
+import { StockBadge } from "../StockBadge";
+import { StatusBadge } from "../StatusBadge";
 import { Button } from "@/shared/components/ui/Button";
 import { useState } from "react";
 import { ProductDetailModal } from "./ProductDetailModal";
-import { useScheduledDiscountStore } from "../../application/stores/scheduled-discount.store";
-import { ScheduledDiscountBadge } from "./ScheduledDiscountBadge";
+import { useScheduledDiscountStore } from "../../../application/stores/scheduled-discount.store";
+import { ScheduledDiscountBadge } from "../ScheduledDiscountBadge";
 import { usePagination } from "@/shared/hooks/usePagination";
 import { TablePagination } from "@/shared/components/TablePagination";
 

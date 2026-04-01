@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/static-components */
 import { useEffect, useState } from "react";
-import { useCatalogStore } from "../../application/stores/catalog.store";
-import { useProductStore } from "../../application/stores/product.store";
+import { useCatalogStore } from "../../../application/stores/catalog.store";
+import { useProductStore } from "../../../application/stores/product.store";
 import {
   ProductPresentation,
   type CreateProductData,
   type Product,
   type UpdateProductData,
-} from "../../domain/models/product.model";
-import { LoadingSpinner } from "./LoadingSpinner";
+} from "../../../domain/models/product.model";
+import { LoadingSpinner } from "../LoadingSpinner";
 
 const Field = ({
   label,

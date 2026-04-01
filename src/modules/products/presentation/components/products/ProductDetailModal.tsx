@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/static-components */
 import { useEffect } from "react";
-import { DiscountType } from "../../domain/models/discount.type";
+import { DiscountType } from "../../../domain/models/discount.type";
 import {
   getStockStatus,
   ProductPresentation,
   type Product,
-} from "../../domain/models/product.model";
-import { PriceDisplay } from "./PriceDisplay";
-import { StockBadge } from "./StockBadge";
-import { StatusBadge } from "./StatusBadge";
+} from "../../../domain/models/product.model";
+import { PriceDisplay } from "./../products/PriceDisplay";
+import { StockBadge } from "./../StockBadge";
+import { StatusBadge } from "./../StatusBadge";
 
 interface ProductDetailModalProps {
   product: Product | null;
