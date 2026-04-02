@@ -4,6 +4,7 @@ interface SalesStatsCardsProps {
   total: number;
   totalAmount: number;
   todaySales: number;
+  monthName: string;
 }
 
 const formatCurrency = (value: number) =>
@@ -16,6 +17,7 @@ export const SalesStatsCards: React.FC<SalesStatsCardsProps> = ({
   total,
   totalAmount,
   todaySales,
+  monthName,
 }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -23,7 +25,9 @@ export const SalesStatsCards: React.FC<SalesStatsCardsProps> = ({
       <Card className="bg-gradient-to-br from-green-50 to-white hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-neutral-600">Total Ventas</p>
+            <p className="text-sm text-neutral-600">
+              Total Ventas - {monthName}
+            </p>
             <p className="text-2xl font-bold text-green-700 mt-1">{total}</p>
           </div>
           <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -48,7 +52,9 @@ export const SalesStatsCards: React.FC<SalesStatsCardsProps> = ({
       <Card className="bg-gradient-to-br from-blue-50 to-white hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-neutral-600">Monto Total</p>
+            <p className="text-sm text-neutral-600">
+              Monto Total - {monthName}
+            </p>
             <p className="text-2xl font-bold text-blue-700 mt-1">
               {formatCurrency(totalAmount)}
             </p>

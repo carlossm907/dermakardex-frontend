@@ -33,12 +33,27 @@ export const SaleListPage: React.FC = () => {
     fetchActive();
   }, []);
 
-  const today = new Date().toLocaleDateString("sv-SE");
+  const today = new Date().toLocaleDateString("sv-SE", {
+    timeZone: "America/Lima",
+  });
+
+  const [currentYear, currentMonth] = today.split("-").map(Number);
+
+  const currentMonthSales = sales.filter((sale) => {
+    const [saleYear, saleMonth] = sale.saleDate.split("-").map(Number);
+    return saleYear === currentYear && saleMonth === currentMonth;
+  });
+
+  const monthName = new Date(currentYear, currentMonth - 1).toLocaleString(
+    "es-PE",
+    { month: "long" },
+  );
 
   const stats = {
-    total: sales.length,
-    totalAmount: sales.reduce((sum, sale) => sum + sale.total, 0),
+    total: currentMonthSales.length,
+    totalAmount: currentMonthSales.reduce((sum, sale) => sum + sale.total, 0),
     todaySales: sales.filter((sale) => sale.saleDate === today).length,
+    monthName: monthName.charAt(0).toUpperCase() + monthName.slice(1),
   };
 
   const handleOpenModal = () => setShowModal(true);
@@ -85,6 +100,7 @@ export const SaleListPage: React.FC = () => {
         total={stats.total}
         totalAmount={stats.totalAmount}
         todaySales={stats.todaySales}
+        monthName={stats.monthName}
       />
       {/* Filtros */}
       <SaleFilters
