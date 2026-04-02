@@ -5,11 +5,41 @@ interface StockEntryStatsCardsProps {
   entries: StockEntry[];
 }
 
+const getNowInLima = (): Date => {
+  const limaTimeString = new Date().toLocaleString("en-US", {
+    timeZone: "America/Lima",
+  });
+  return new Date(limaTimeString);
+};
+
 export const StockEntryStatsCards: React.FC<StockEntryStatsCardsProps> = ({
   entries,
 }) => {
-  const totalUnits = entries.reduce((sum, e) => sum + e.quantity, 0);
-  const totalInvestment = entries.reduce(
+  const now = getNowInLima();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const currentMonthEntries = entries.filter((e) => {
+    const entryDate = new Date(
+      new Date(e.registeredAt).toLocaleString("en-US", {
+        timeZone: "America/Lima",
+      }),
+    );
+    return (
+      entryDate.getMonth() === currentMonth &&
+      entryDate.getFullYear() === currentYear
+    );
+  });
+
+  const monthName = now.toLocaleString("es-PE", { month: "long" });
+  const capitalizedMonth =
+    monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+  const totalUnits = currentMonthEntries.reduce(
+    (sum, e) => sum + e.quantity,
+    0,
+  );
+  const totalInvestment = currentMonthEntries.reduce(
     (sum, e) => sum + e.totalInvestment,
     0,
   );
@@ -19,9 +49,11 @@ export const StockEntryStatsCards: React.FC<StockEntryStatsCardsProps> = ({
       <Card className="bg-gradient-to-br from-blue-50 to-white">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-neutral-600">Total Entradas</p>
+            <p className="text-sm text-neutral-600">
+              Total Entradas - {capitalizedMonth}
+            </p>
             <p className="text-2xl font-bold text-blue-600 mt-1">
-              {entries.length}
+              {currentMonthEntries.length}
             </p>
           </div>
           <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -45,7 +77,9 @@ export const StockEntryStatsCards: React.FC<StockEntryStatsCardsProps> = ({
       <Card className="bg-gradient-to-br from-green-50 to-white">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-neutral-600">Total Unidades</p>
+            <p className="text-sm text-neutral-600">
+              Total Unidades - {capitalizedMonth}
+            </p>
             <p className="text-2xl font-bold text-green-600 mt-1">
               {totalUnits}
             </p>
@@ -71,7 +105,9 @@ export const StockEntryStatsCards: React.FC<StockEntryStatsCardsProps> = ({
       <Card className="bg-gradient-to-br from-amber-50 to-white">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-neutral-600">Inversión Total</p>
+            <p className="text-sm text-neutral-600">
+              Inversión Total - {capitalizedMonth}
+            </p>
             <p className="text-2xl font-bold text-amber-600 mt-1">
               S/{" "}
               {totalInvestment.toLocaleString("es-PE", {
