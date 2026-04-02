@@ -13,31 +13,16 @@ import { dniLookupService } from "../../infrastructure/services/dni-lookup.servi
 import { CustomerDniInput } from "../components/CustomerDniInput";
 import { DiscountType } from "@/modules/products/domain/models/discount.type";
 import { Input } from "@/shared/components/ui/Input";
-import { SaleStatusBadge } from "../components/SaleStatusBadge";
 import { PaymentForm } from "../components/PaymentForm";
 import { productsApi } from "@/modules/products/infrastructure/api/products.api";
 import { generateSaleTicketPdf } from "../../utils/generateSaleTicketPdf";
 import { useScheduledDiscountStore } from "@/modules/products/application/stores/scheduled-discount.store";
+import { SalesTable } from "../components/SalesTable";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(
     value,
   );
-
-const formatDate = (date: string) =>
-  new Intl.DateTimeFormat("es-PE", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(date + "T00:00:00"));
-
-const formatTime = (time: string) => {
-  const [h, m] = time.split(":");
-  const hour = parseInt(h);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  const displayHour = hour % 12 || 12;
-  return `${displayHour}:${m} ${ampm}`;
-};
 
 export const SaleListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -493,91 +478,7 @@ export const SaleListPage: React.FC = () => {
             />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-neutral-200 bg-neutral-50">
-                    <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                      Ticket
-                    </th>
-                    <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                      Cliente
-                    </th>
-                    <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                      Fecha
-                    </th>
-                    <th className="text-left p-4 text-sm font-semibold text-neutral-700">
-                      Hora
-                    </th>
-                    <th className="text-right p-4 text-sm font-semibold text-neutral-700">
-                      Total
-                    </th>
-                    <th className="text-center p-4 text-sm font-semibold text-neutral-700">
-                      Estado
-                    </th>
-                    <th className="text-right p-4 text-sm font-semibold text-neutral-700">
-                      Acciones
-                    </th>
-                    <th className="text-right p-4 text-sm font-semibold text-neutral-700">
-                      Vendido por
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sales.map((sale) => (
-                    <tr
-                      key={sale.id}
-                      className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors"
-                    >
-                      <td className="p-4">
-                        <span className="font-mono font-semibold text-neutral-900">
-                          {sale.ticketNumber}
-                        </span>
-                      </td>
-
-                      <td className="p-4">
-                        <span className="text-sm text-neutral-900">
-                          {sale.customerFullName}
-                        </span>
-                      </td>
-
-                      <td className="p-4">
-                        <span className="text-sm text-neutral-600">
-                          {formatDate(sale.saleDate)}
-                        </span>
-                      </td>
-
-                      <td className="p-4">
-                        <span className="text-sm text-neutral-600">
-                          {formatTime(sale.saleTime)}
-                        </span>
-                      </td>
-
-                      <td className="p-4 text-right">
-                        <span className="font-semibold text-green-700">
-                          {formatCurrency(sale.total)}
-                        </span>
-                      </td>
-                      <td className="p-4 text-center">
-                        <SaleStatusBadge status={sale.status} />
-                      </td>
-                      <td className="p-4 text-right">
-                        <Button
-                          variant="secondary"
-                          className="text-sm"
-                          onClick={() => navigate(`/sales/${sale.id}`)}
-                        >
-                          Ver Detalle
-                        </Button>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-sm text-neutral-600">
-                          {sale.sellerFullName}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <SalesTable sales={sales} />
             </div>
           )}
         </Card>
