@@ -93,6 +93,7 @@ export const SaleListPage: React.FC = () => {
         onFilterByMonth={fetchSalesByMonth}
         onFilterByCustomer={fetchSalesByCustomerDni}
         isLoading={isLoading}
+        sales={sales}
       />
 
       {/* Lista de ventas o reporte */}

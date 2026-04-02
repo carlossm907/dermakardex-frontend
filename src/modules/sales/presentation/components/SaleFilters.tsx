@@ -1,6 +1,8 @@
 import { Button } from "@/shared/components/ui/Button";
 import { Input } from "@/shared/components/ui/Input";
 import { useState } from "react";
+import type { SaleListItem } from "../../domain/models/sale.model";
+import { generateSalesTableReportPdf } from "../../utils/generateSalesTableReportPdf";
 
 type FilterMode = "all" | "day" | "month" | "customer";
 
@@ -10,6 +12,7 @@ interface SaleFiltersProps {
   onFilterByMonth: (year: number, month: number) => void;
   onFilterByCustomer: (dni: string) => void;
   isLoading: boolean;
+  sales: SaleListItem[];
 }
 
 const MONTHS = [
@@ -33,12 +36,14 @@ export const SaleFilters: React.FC<SaleFiltersProps> = ({
   onFilterByMonth,
   onFilterByCustomer,
   isLoading,
+  sales,
 }) => {
   const [mode, setMode] = useState<FilterMode>("all");
   const [dayValue, setDayValue] = useState("");
   const [monthValue, setMonthValue] = useState(new Date().getMonth() + 1);
   const [yearValue, setYearValue] = useState(new Date().getFullYear());
   const [customerDni, setCustomerDni] = useState("");
+  const [filterApplied, setFilterApplied] = useState(false);
 
   const now = new Date();
 
@@ -58,12 +63,38 @@ export const SaleFilters: React.FC<SaleFiltersProps> = ({
   const handleApplyFilter = () => {
     if (mode === "day" && dayValue) {
       onFilterByDay(dayValue);
+      setFilterApplied(true);
     } else if (mode === "month") {
       onFilterByMonth(yearValue, monthValue);
+      setFilterApplied(true);
     } else if (mode === "customer" && customerDni.length === 8) {
       onFilterByCustomer(customerDni);
+      setFilterApplied(true);
     }
   };
+
+  const handlePrintReport = () => {
+    if (sales.length === 0) return;
+
+    if (mode === "day" && dayValue) {
+      generateSalesTableReportPdf(sales, { type: "day", date: dayValue });
+    } else if (mode === "month") {
+      generateSalesTableReportPdf(sales, {
+        type: "month",
+        year: yearValue,
+        month: monthValue,
+      });
+    } else if (mode === "customer" && customerDni.length === 8) {
+      generateSalesTableReportPdf(sales, {
+        type: "customer",
+        dni: customerDni,
+      });
+    } else {
+      generateSalesTableReportPdf(sales, { type: "all" });
+    }
+  };
+
+  const canPrint = filterApplied && sales.length > 0;
 
   const tabClass = (m: FilterMode) =>
     `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
@@ -101,6 +132,36 @@ export const SaleFilters: React.FC<SaleFiltersProps> = ({
           >
             Por Cliente
           </button>
+        </div>
+
+        {/* Botón imprimir reporte */}
+        <div
+          className={`transition-all duration-200 overflow-hidden ${
+            canPrint
+              ? "opacity-100 max-w-xs"
+              : "opacity-0 max-w-0 pointer-events-none"
+          }`}
+        >
+          <Button
+            variant="secondary"
+            onClick={handlePrintReport}
+            className="flex items-center gap-2 shrink-0 whitespace-nowrap"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+              />
+            </svg>
+            Imprimir Reporte
+          </Button>
         </div>
       </div>
 
