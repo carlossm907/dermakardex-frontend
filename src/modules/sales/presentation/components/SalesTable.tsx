@@ -60,7 +60,7 @@ export const SalesTable: React.FC<Props> = ({ sales }) => {
               <th className="text-right p-4 text-sm font-semibold">Total</th>
               <th className="text-center p-4 text-sm font-semibold">Estado</th>
               <th className="text-right p-4 text-sm font-semibold">Acciones</th>
-              <th className="text-right p-4 text-sm font-semibold">
+              <th className="text-left p-4 text-sm font-semibold">
                 Vendido por
               </th>
             </tr>
