@@ -3,7 +3,6 @@ import { LoginPage } from "./modules/iam/presentation/pages/LoginPage";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 import { DashboardLayout } from "./shared/pages/DashboardLayout";
 import { ProductsListPage } from "./modules/products/presentation/pages/ProductsListPage";
-import { ProductFormPage } from "./modules/products/presentation/pages/ProductFormPage";
 import { CatalogManagementPage } from "./modules/products/presentation/pages/CatalogManagementPage";
 import { StockEntriesPage } from "./modules/products/presentation/pages/StockEntriesPage";
 import { SaleListPage } from "./modules/sales/presentation/pages/SalesListPage";
@@ -44,14 +43,6 @@ export const router = createBrowserRouter([
       {
         path: "products",
         element: <ProductsListPage />,
-      },
-      {
-        path: "products/new",
-        element: <ProductFormPage />,
-      },
-      {
-        path: "products/:id/edit",
-        element: <ProductFormPage />,
       },
       {
         path: "products/catalog",
