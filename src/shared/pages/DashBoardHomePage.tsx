@@ -856,7 +856,9 @@ export const DashboardHomePage: React.FC = () => {
                   Ver Ventas
                 </button>
                 <button
-                  onClick={() => navigate("/sales/new")}
+                  onClick={() =>
+                    navigate("/sales", { state: { openNewSaleModal: true } })
+                  }
                   className="text-xs px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   Nueva Venta

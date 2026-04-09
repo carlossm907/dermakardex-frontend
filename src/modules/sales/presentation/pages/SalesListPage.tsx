@@ -10,8 +10,10 @@ import { useScheduledDiscountStore } from "@/modules/products/application/stores
 import { SalesTable } from "../components/SalesTable";
 import { SalesStatsCards } from "../components/SalesStatsCards";
 import { NewSaleModal } from "../components/NewSaleModal";
+import { useLocation } from "react-router-dom";
 
 export const SaleListPage: React.FC = () => {
+  const location = useLocation();
   const {
     sales,
     isLoading,
@@ -25,7 +27,11 @@ export const SaleListPage: React.FC = () => {
 
   const { fetchProducts } = useProductStore();
 
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(
+    () =>
+      (location.state as { openNewSaleModal?: boolean })?.openNewSaleModal ===
+      true,
+  );
 
   useEffect(() => {
     fetchSales();
