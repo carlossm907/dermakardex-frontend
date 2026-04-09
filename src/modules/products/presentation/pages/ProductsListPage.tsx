@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useProductStore } from "../../application/stores/product.store";
 import { useCatalogStore } from "../../application/stores/catalog.store";
 import { useEffect, useState } from "react";
@@ -9,16 +8,22 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { EmptyState } from "../components/EmptyState";
 import { ProductTable } from "../components/products/ProductTable";
 import { ProductFormModal } from "../components/products/ProductFormModal";
+import type { Product } from "../../domain/models/product.model";
+import { useLocation } from "react-router-dom";
 
 export const ProductsListPage: React.FC = () => {
-  const navigate = useNavigate();
-
+  const location = useLocation();
   const { products, isLoading, fetchProducts } = useProductStore();
 
   const { brands, categories, laboratories, suppliers, fetchAll } =
     useCatalogStore();
 
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(
+    () =>
+      (location.state as { openCreateModal?: boolean })?.openCreateModal ===
+      true,
+  );
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -117,7 +122,7 @@ export const ProductsListPage: React.FC = () => {
               categories={categories}
               suppliers={suppliers}
               laboratories={laboratories}
-              onEdit={(product) => navigate(`/products/${product.id}/edit`)}
+              onEdit={(product) => setEditingProduct(product)}
             />
           )}
         </Card>
@@ -128,6 +133,17 @@ export const ProductsListPage: React.FC = () => {
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
             setShowCreateModal(false);
+            fetchProducts();
+          }}
+        />
+      )}
+
+      {editingProduct && (
+        <ProductFormModal
+          product={editingProduct}
+          onClose={() => setEditingProduct(null)}
+          onSuccess={() => {
+            setEditingProduct(null);
             fetchProducts();
           }}
         />
