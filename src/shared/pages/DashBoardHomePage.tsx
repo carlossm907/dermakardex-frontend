@@ -6,11 +6,23 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../components/ui/Card";
 import { salesApi } from "@/modules/sales/infrastructure/api/sales.api";
+import { useScheduledDiscountStore } from "@/modules/products/application/stores/scheduled-discount.store";
+import { productsApi } from "@/modules/products/infrastructure/api/products.api";
+import { isCurrentlyActive } from "@/modules/products/domain/models/scheduled-discount.model";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(
     value,
   );
+
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("es-PE", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
 
 export const DashboardHomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,14 +31,39 @@ export const DashboardHomePage: React.FC = () => {
     useProductStore();
   const { entries, fetchAllEntries } = useStockEntryStore();
   const { sales, fetchSales } = useSaleStore();
+  const { discounts, fetchAll: fetchAllDiscounts } =
+    useScheduledDiscountStore();
+
   const [todayProductsSold, setTodayProductsSold] = useState(0);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+
+  const [monthSales, setMonthSales] = useState(0);
+  const [monthRevenue, setMonthRevenue] = useState(0);
+  const [isLoadingMonth, setIsLoadingMonth] = useState(false);
+
+  //const [monthProfit, setMonthProfit] = useState(0);
+  //const [isLoadingProfit, setIsLoadingProfit] = useState(false);
+
+  const [yearRevenue, setYearRevenue] = useState(0);
+  const [isLoadingYear, setIsLoadingYear] = useState(false);
+
+  const [monthUniqueProducts, setMonthUniqueProducts] = useState(0);
+  const [topProduct, setTopProduct] = useState<{
+    name: string;
+    quantity: number;
+  } | null>(null);
+
+  const [todayUniqueProducts, setTodayUniqueProducts] = useState(0);
+  const [isLoadingTodayProductsReport, setIsLoadingTodayProductsReport] =
+    useState(false);
+  const [isLoadingProductsReport, setIsLoadingProductsReport] = useState(false);
 
   useEffect(() => {
     fetchProducts();
     fetchLowStockProducts();
     fetchAllEntries();
     fetchSales();
+    fetchAllDiscounts();
   }, []);
 
   useEffect(() => {
@@ -44,7 +81,6 @@ export const DashboardHomePage: React.FC = () => {
         const saleDetails = await Promise.all(
           todaySales.map((sale) => salesApi.getSaleById(sale.id)),
         );
-
         const totalProducts = saleDetails.reduce((total, saleDetail) => {
           return (
             total +
@@ -63,6 +99,103 @@ export const DashboardHomePage: React.FC = () => {
       calculateTodayProductsSold();
     }
   }, [sales]);
+
+  useEffect(() => {
+    const calculate = async () => {
+      const now = new Date();
+      setIsLoadingMonth(true);
+      try {
+        const monthlySales = await salesApi.getSalesByMonth(
+          now.getFullYear(),
+          now.getMonth() + 1,
+        );
+        setMonthSales(monthlySales.length);
+        setMonthRevenue(monthlySales.reduce((sum, s) => sum + s.total, 0));
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoadingMonth(false);
+      }
+    };
+    calculate();
+  }, []);
+
+  useEffect(() => {
+    const calculate = async () => {
+      const now = new Date();
+      const from = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1,
+      ).toLocaleDateString("sv-SE");
+      const to = now.toLocaleDateString("sv-SE");
+      setIsLoadingProductsReport(true);
+      try {
+        const report = await productsApi.getAllProductsSalesReport(from, to);
+        const sold = report.filter((r) => r.quantity > 0);
+        setMonthUniqueProducts(sold.length);
+        if (sold.length > 0) {
+          const top = sold.reduce((prev, curr) =>
+            curr.quantity > prev.quantity ? curr : prev,
+          );
+          setTopProduct({ name: top.productName, quantity: top.quantity });
+        } else {
+          setTopProduct(null);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoadingProductsReport(false);
+      }
+    };
+    calculate();
+  }, []);
+
+  useEffect(() => {
+    const calculate = async () => {
+      const today = new Date().toLocaleDateString("sv-SE");
+
+      setIsLoadingTodayProductsReport(true);
+      try {
+        const report = await productsApi.getAllProductsSalesReport(
+          today,
+          today,
+        );
+
+        const sold = report.filter((r) => r.quantity > 0);
+
+        setTodayUniqueProducts(sold.length);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoadingTodayProductsReport(false);
+      }
+    };
+
+    calculate();
+  }, []);
+
+  useEffect(() => {
+    const calculate = async () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      setIsLoadingYear(true);
+      try {
+        let total = 0;
+        for (let m = 1; m <= currentMonth; m++) {
+          const monthlySales = await salesApi.getSalesByMonth(year, m);
+          total += monthlySales.reduce((sum, s) => sum + s.total, 0);
+        }
+        setYearRevenue(total);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoadingYear(false);
+      }
+    };
+    calculate();
+  }, []);
 
   const today = new Date().toLocaleDateString("sv-SE");
 
@@ -85,6 +218,8 @@ export const DashboardHomePage: React.FC = () => {
       .reduce((sum, sale) => sum + sale.total, 0),
   };
 
+  const activeDiscounts = discounts.filter(isCurrentlyActive);
+
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -94,9 +229,14 @@ export const DashboardHomePage: React.FC = () => {
         </p>
       </div>
 
-      {/* Grid de estadísticas - 3 columnas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {/* Total Productos Activos */}
+      {/* ── Inventario ── */}
+      <div className="flex items-center gap-3 mb-4">
+        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest whitespace-nowrap">
+          Inventario
+        </p>
+        <div className="flex-1 h-px bg-neutral-200" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card
           className="bg-gradient-to-br from-blue-50 to-white hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/products")}
@@ -126,7 +266,6 @@ export const DashboardHomePage: React.FC = () => {
           </div>
         </Card>
 
-        {/* Productos con Descuento */}
         <Card
           className="bg-gradient-to-br from-red-50 to-white hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/products/discounts")}
@@ -155,8 +294,6 @@ export const DashboardHomePage: React.FC = () => {
             </div>
           </div>
         </Card>
-
-        {/* Stock Bajo */}
         <Card
           className="bg-gradient-to-br from-amber-50 to-white hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/products/low-stock")}
@@ -186,7 +323,6 @@ export const DashboardHomePage: React.FC = () => {
           </div>
         </Card>
 
-        {/* Entradas de Hoy */}
         <Card
           className="bg-gradient-to-br from-purple-50 to-white hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/products/stock-entries")}
@@ -215,7 +351,111 @@ export const DashboardHomePage: React.FC = () => {
             </div>
           </div>
         </Card>
-        {/* Productos Vendidos Hoy */}
+        {/* Descuento programado */}
+        <Card
+          className={`hover:shadow-md transition-shadow cursor-pointer ${
+            activeDiscounts.length > 0
+              ? "bg-gradient-to-br from-rose-50 to-white border-l-4 border-rose-400"
+              : "bg-gradient-to-br from-neutral-50 to-white"
+          }`}
+          onClick={() => navigate("/products/scheduled-discounts")}
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex-1 min-w-0 pr-2">
+              <p className="text-sm text-neutral-600">Descuento Programado</p>
+              {activeDiscounts.length > 0 ? (
+                <>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-700">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block" />
+                      Activo
+                    </span>
+                    <span className="text-sm font-medium text-neutral-700 truncate">
+                      {activeDiscounts[0].name}
+                    </span>
+                  </div>
+                  <p className="text-xs text-neutral-500 mt-1.5">
+                    {formatDate(activeDiscounts[0].startsAt)} →{" "}
+                    {formatDate(activeDiscounts[0].endsAt)}
+                  </p>
+                  {activeDiscounts.length > 1 && (
+                    <p className="text-xs text-rose-500 mt-0.5">
+                      +{activeDiscounts.length - 1} más activo
+                      {activeDiscounts.length - 1 > 1 ? "s" : ""}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="text-base font-medium text-neutral-400 mt-1">
+                    Sin descuentos activos
+                  </p>
+                  <p className="text-xs text-neutral-400 mt-0.5">
+                    No hay campañas en curso
+                  </p>
+                </>
+              )}
+            </div>
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                activeDiscounts.length > 0 ? "bg-rose-100" : "bg-neutral-100"
+              }`}
+            >
+              <svg
+                className={`w-6 h-6 ${activeDiscounts.length > 0 ? "text-rose-500" : "text-neutral-400"}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* ── Ventas de Hoy ── */}
+      <div className="flex items-center gap-3 mb-4">
+        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest whitespace-nowrap">
+          Ventas de Hoy
+        </p>
+        <div className="flex-1 h-px bg-neutral-200" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Card
+          className="bg-gradient-to-br from-green-50 to-white hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => navigate("/sales")}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-neutral-600">Ventas Hoy</p>
+              <p className="text-2xl font-bold text-green-600 mt-1">
+                {stats.todaySales}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+          </div>
+        </Card>
+
         <Card
           className="bg-gradient-to-br from-green-50 to-white hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/sales")}
@@ -248,38 +488,6 @@ export const DashboardHomePage: React.FC = () => {
             </div>
           </div>
         </Card>
-
-        {/* Ventas de Hoy */}
-        <Card
-          className="bg-gradient-to-br from-green-50 to-white hover:shadow-md transition-shadow cursor-pointer"
-          onClick={() => navigate("/sales")}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-neutral-600">Ventas Hoy</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">
-                {stats.todaySales}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <svg
-                className="w-6 h-6 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
-          </div>
-        </Card>
-
-        {/* Ganancia de Hoy */}
         <Card
           className="bg-gradient-to-br from-emerald-50 to-white hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate("/sales")}
@@ -308,11 +516,268 @@ export const DashboardHomePage: React.FC = () => {
             </div>
           </div>
         </Card>
+        <Card
+          className="bg-gradient-to-br from-violet-50 to-white hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => navigate("/sales")}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-neutral-600">Productos Vendidos Hoy</p>
+
+              <p className="text-2xl font-bold text-violet-600 mt-1">
+                {isLoadingTodayProductsReport ? (
+                  <span className="text-lg text-neutral-400">...</span>
+                ) : (
+                  todayUniqueProducts
+                )}
+              </p>
+
+              <p className="text-xs text-neutral-400 mt-0.5">
+                nombres distintos
+              </p>
+            </div>
+
+            <div className="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-violet-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                />
+              </svg>
+            </div>
+          </div>
+        </Card>
       </div>
 
-      {/* Sección de accesos rápidos */}
+      {/* ── Resumen del Mes ── */}
+      <div className="flex items-center gap-3 mb-4">
+        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest whitespace-nowrap">
+          Resumen del Mes
+        </p>
+        <div className="flex-1 h-px bg-neutral-200" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {/* Ventas del mes */}
+        <Card
+          className="bg-gradient-to-br from-sky-50 to-white hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => navigate("/sales")}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-neutral-600">Ventas del Mes</p>
+              <p className="text-2xl font-bold text-sky-600 mt-1">
+                {isLoadingMonth ? (
+                  <span className="text-lg text-neutral-400">...</span>
+                ) : (
+                  monthSales
+                )}
+              </p>
+              <p className="text-xs text-neutral-400 mt-0.5">transacciones</p>
+            </div>
+            <div className="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-sky-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+          </div>
+        </Card>
+
+        {/* Ingresos del mes */}
+        <Card
+          className="bg-gradient-to-br from-teal-50 to-white hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => navigate("/sales")}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-neutral-600">Ingresos del Mes</p>
+              <p className="text-2xl font-bold text-teal-600 mt-1">
+                {isLoadingMonth ? (
+                  <span className="text-lg text-neutral-400">...</span>
+                ) : (
+                  formatCurrency(monthRevenue)
+                )}
+              </p>
+              <p className="text-xs text-neutral-400 mt-0.5">total facturado</p>
+            </div>
+            <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-teal-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+          </div>
+        </Card>
+
+        {/* Productos distintos */}
+        <Card
+          className="bg-gradient-to-br from-violet-50 to-white hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => navigate("/sales")}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-neutral-600">Productos Vendidos</p>
+              <p className="text-2xl font-bold text-violet-600 mt-1">
+                {isLoadingProductsReport ? (
+                  <span className="text-lg text-neutral-400">...</span>
+                ) : (
+                  monthUniqueProducts
+                )}
+              </p>
+              <p className="text-xs text-neutral-400 mt-0.5">
+                nombres distintos
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-violet-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                />
+              </svg>
+            </div>
+          </div>
+        </Card>
+
+        {/* Top producto */}
+        <Card
+          className="bg-gradient-to-br from-orange-50 to-white hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => navigate("/sales")}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex-1 min-w-0 pr-2">
+              <p className="text-sm text-neutral-600">Producto Top del Mes</p>
+              {isLoadingProductsReport ? (
+                <p className="text-lg text-neutral-400 mt-1">...</p>
+              ) : topProduct ? (
+                <>
+                  <p
+                    className="text-base font-bold text-orange-600 mt-1 truncate"
+                    title={topProduct.name}
+                  >
+                    {topProduct.name}
+                  </p>
+                  <p className="text-xs text-neutral-500 mt-0.5">
+                    {topProduct.quantity} unidades
+                  </p>
+                </>
+              ) : (
+                <p className="text-base text-neutral-400 mt-1">
+                  Sin ventas este mes
+                </p>
+              )}
+            </div>
+            <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg
+                className="w-6 h-6 text-orange-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                />
+              </svg>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* ── Resumen del Año ── */}
+      <div className="flex items-center gap-3 mb-4">
+        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest whitespace-nowrap">
+          Resumen del Año {new Date().getFullYear()}
+        </p>
+        <div className="flex-1 h-px bg-neutral-200" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {/* Ingresos del año */}
+        <Card
+          className="bg-gradient-to-br from-indigo-50 to-white hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => navigate("/sales")}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-neutral-600">Ingresos del Año</p>
+              <p className="text-2xl font-bold text-indigo-600 mt-1">
+                {isLoadingYear ? (
+                  <span className="text-lg text-neutral-400">...</span>
+                ) : (
+                  formatCurrency(yearRevenue)
+                )}
+              </p>
+              <p className="text-xs text-neutral-400 mt-0.5">
+                {new Date().getFullYear()}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-indigo-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"
+                />
+              </svg>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* ── Accesos Rápidos ── */}
+      <div className="flex items-center gap-3 mb-4">
+        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest whitespace-nowrap">
+          Accesos Rápidos
+        </p>
+        <div className="flex-1 h-px bg-neutral-200" />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Card de Productos */}
         <Card className="bg-gradient-to-br from-primary-50 to-white border-l-4 border-primary-500">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -346,7 +811,9 @@ export const DashboardHomePage: React.FC = () => {
                   Ver Productos
                 </button>
                 <button
-                  onClick={() => navigate("/products/new")}
+                  onClick={() =>
+                    navigate("/products", { state: { openCreateModal: true } })
+                  }
                   className="text-xs px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   Nuevo Producto
@@ -356,7 +823,6 @@ export const DashboardHomePage: React.FC = () => {
           </div>
         </Card>
 
-        {/* Card de Ventas */}
         <Card className="bg-gradient-to-br from-green-50 to-white border-l-4 border-green-500">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
