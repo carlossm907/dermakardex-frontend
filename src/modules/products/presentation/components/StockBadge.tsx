@@ -12,7 +12,7 @@ export const StockBadge: React.FC<StockBadgeProps> = ({
   className = "",
 }) => {
   const colorMap: Record<StockStatus, string> = {
-    EMPTY: "bg-red-400 text-red-900",
+    EMPTY: "bg-red-200 text-red-600",
     LOW: "bg-red-100 text-red-800",
     MEDIUM: "bg-yellow-100 text-yellow-800",
     OK: "bg-green-100 text-green-800",
