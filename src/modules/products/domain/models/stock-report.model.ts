@@ -8,6 +8,6 @@ export interface StockReport {
   finalStock: number;
 }
 
-export type StockReportScope = "all" | "single" | "multiple";
+export type StockReportScope = "all" | "single" | "multiple" | "affected";
 
 export type StockReportDateMode = "day" | "month" | "range";

@@ -6,6 +6,6 @@ export interface SalesReport {
   quantity: number;
 }
 
-export type SalesReportScope = "all" | "single" | "multiple";
+export type SalesReportScope = "all" | "single" | "multiple" | "affected";
 
 export type SalesReportDateMode = "day" | "month" | "range";
