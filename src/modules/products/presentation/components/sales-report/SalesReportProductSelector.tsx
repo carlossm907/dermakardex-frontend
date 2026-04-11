@@ -23,7 +23,7 @@ export const SalesReportProductSelector: React.FC<
   onToggleMultiple,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  if (scope === "all") return null;
+  if (scope === "all" || scope === "affected") return null;
   const filtered = searchTerm.trim()
     ? products.filter((p) =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase()),

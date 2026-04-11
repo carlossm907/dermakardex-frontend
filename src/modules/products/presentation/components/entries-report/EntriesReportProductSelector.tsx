@@ -24,7 +24,7 @@ export const EntriesReportProductSelector: React.FC<
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  if (scope === "all") return null;
+  if (scope === "all" || scope === "affected") return null;
 
   const filtered = searchTerm.trim()
     ? products.filter((p) =>
