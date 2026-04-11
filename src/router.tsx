@@ -10,7 +10,6 @@ import { SaleDetailPage } from "./modules/sales/presentation/pages/SaleDetailPag
 import { LowStockPage } from "./modules/products/presentation/pages/LowStockPage";
 import { DashboardHomePage } from "./shared/pages/DashBoardHomePage";
 import { DiscountsPage } from "./modules/products/presentation/pages/DiscountsPage";
-import { DiscountsFormPage } from "./modules/products/presentation/pages/DiscountsFormPage";
 import { UsersPage } from "./modules/iam/presentation/pages/UsersPage";
 import { ScheduledDiscountsPage } from "./modules/products/presentation/pages/ScheduledDiscountsPage";
 import { StockReportPage } from "./modules/products/presentation/pages/StockReportPage";
@@ -55,10 +54,6 @@ export const router = createBrowserRouter([
       {
         path: "products/discounts",
         element: <DiscountsPage />,
-      },
-      {
-        path: "products/discounts/new",
-        element: <DiscountsFormPage />,
       },
       {
         path: "products/low-stock",
