@@ -31,6 +31,7 @@ export const EntriesReportPage: React.FC = () => {
     fetchSingleProductEntriesReport,
     fetchAllProductsEntriesReport,
     fetchSelectedProductsEntriesReport,
+    fetchAffectedProductsEntriesReport,
     clearReport,
     clearError,
   } = useEntriesReportStore();
@@ -81,6 +82,8 @@ export const EntriesReportPage: React.FC = () => {
     setHasSearched(true);
     if (scope === "all") {
       await fetchAllProductsEntriesReport(from, to);
+    } else if (scope === "affected") {
+      await fetchAffectedProductsEntriesReport(from, to);
     } else if (scope === "single" && selectedProductId !== null) {
       await fetchSingleProductEntriesReport(selectedProductId, from, to);
     } else if (scope === "multiple" && selectedProductIds.length > 0) {

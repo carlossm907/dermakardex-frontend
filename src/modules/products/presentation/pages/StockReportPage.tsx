@@ -31,6 +31,7 @@ export const StockReportPage: React.FC = () => {
     fetchSingleProductReport,
     fetchAllProductsReport,
     fetchSelectedProductsReport,
+    fetchAffectedProductsReport,
     clearReport,
     clearError,
   } = useStockReportStore();
@@ -82,6 +83,8 @@ export const StockReportPage: React.FC = () => {
 
     if (scope === "all") {
       await fetchAllProductsReport(from, to);
+    } else if (scope === "affected") {
+      await fetchAffectedProductsReport(from, to);
     } else if (scope === "single" && selectedProductId !== null) {
       await fetchSingleProductReport(selectedProductId, from, to);
     } else if (scope === "multiple" && selectedProductIds.length > 0) {
