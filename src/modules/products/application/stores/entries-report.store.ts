@@ -22,6 +22,11 @@ interface EntriesReportState {
     to: string,
   ) => Promise<void>;
 
+  fetchAffectedProductsEntriesReport: (
+    from: string,
+    to: string,
+  ) => Promise<void>;
+
   clearReport: () => void;
   clearError: () => void;
 }
@@ -70,6 +75,24 @@ export const useEntriesReportStore = create<EntriesReportState>((set) => ({
     try {
       const response = await productsApi.getSelectedProductsEntriesReport(
         productIds,
+        from,
+        to,
+      );
+      set({
+        report: entriesReportMapper.toDomainList(response),
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Error al generar el reporte";
+      set({ error: message, isLoading: false });
+    }
+  },
+
+  fetchAffectedProductsEntriesReport: async (from, to) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await productsApi.getAffectedProductsEntriesReport(
         from,
         to,
       );

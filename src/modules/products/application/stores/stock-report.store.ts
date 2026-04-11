@@ -22,6 +22,8 @@ interface StockReportState {
     to: string,
   ) => Promise<void>;
 
+  fetchAffectedProductsReport: (from: string, to: string) => Promise<void>;
+
   clearReport: () => void;
   clearError: () => void;
 }
@@ -73,6 +75,21 @@ export const useStockReportStore = create<StockReportState>((set) => ({
         from,
         to,
       );
+      set({
+        report: stockReportMapper.toDomainList(response),
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Error al generar el reporte";
+      set({ error: message, isLoading: false });
+    }
+  },
+
+  fetchAffectedProductsReport: async (from, to) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await productsApi.getAffectedProductsReport(from, to);
       set({
         report: stockReportMapper.toDomainList(response),
         isLoading: false,

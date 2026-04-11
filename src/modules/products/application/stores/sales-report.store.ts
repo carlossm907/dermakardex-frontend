@@ -22,6 +22,8 @@ interface SalesReportState {
     to: string,
   ) => Promise<void>;
 
+  fetchAffectedProductsSalesReport: (from: string, to: string) => Promise<void>;
+
   clearReport: () => void;
   clearError: () => void;
 }
@@ -73,6 +75,24 @@ export const useSalesReportStore = create<SalesReportState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await productsApi.getAllProductsSalesReport(from, to);
+      set({
+        report: salesReportMapper.toDomainList(response),
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Error al generar el reporte";
+      set({ error: message, isLoading: false });
+    }
+  },
+
+  fetchAffectedProductsSalesReport: async (from, to) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await productsApi.getAffectedProductsSalesReport(
+        from,
+        to,
+      );
       set({
         report: salesReportMapper.toDomainList(response),
         isLoading: false,
