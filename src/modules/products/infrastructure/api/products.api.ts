@@ -530,6 +530,17 @@ export const productsApi = {
     return response.data;
   },
 
+  getAffectedProductsReport: async (
+    from: string,
+    to: string,
+  ): Promise<StockReportResponse[]> => {
+    const response = await apiClient.get<StockReportResponse[]>(
+      `/products/stock-report/affected`,
+      { params: { from, to } },
+    );
+    return response.data;
+  },
+
   // Sales Products Report
 
   getSingleProductSalesReport: async (
@@ -562,6 +573,17 @@ export const productsApi = {
   ): Promise<SalesReportResponse[]> => {
     const response = await apiClient.get<SalesReportResponse[]>(
       `/sales-report/all`,
+      { params: { from, to } },
+    );
+    return response.data;
+  },
+
+  getAffectedProductsSalesReport: async (
+    from: string,
+    to: string,
+  ): Promise<SalesReportResponse[]> => {
+    const response = await apiClient.get<SalesReportResponse[]>(
+      `/sales-report/affected`,
       { params: { from, to } },
     );
     return response.data;
@@ -600,6 +622,17 @@ export const productsApi = {
     const queryString = serializeParams({ productIds, from, to });
     const response = await apiClient.get<EntriesReportResponse[]>(
       `/entries-report/bulk?${queryString}`,
+    );
+    return response.data;
+  },
+
+  getAffectedProductsEntriesReport: async (
+    from: string,
+    to: string,
+  ): Promise<EntriesReportResponse[]> => {
+    const response = await apiClient.get<EntriesReportResponse[]>(
+      `/entries-report/affected`,
+      { params: { from, to } },
     );
     return response.data;
   },
