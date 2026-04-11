@@ -1,18 +1,20 @@
-import { useNavigate } from "react-router-dom";
 import { useProductStore } from "../../application/stores/product.store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCatalogStore } from "../../application/stores/catalog.store";
 import { Card } from "@/shared/components/ui/Card";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { EmptyState } from "../components/EmptyState";
-import { ProductTable } from "../components/products/ProductTable";
-import { Button } from "@/shared/components/ui/Button";
+import { useStockEntryStore } from "../../application/stores/stock-entry.store";
+import { LowStockTable } from "../components/LowStockTable";
+import { NewStockEntryModal } from "../components/stock-entries/NewStockEntryModal";
 
 export const LowStockPage: React.FC = () => {
-  const navigate = useNavigate();
   const { lowStockProducts, isLoading, fetchLowStockProducts } =
     useProductStore();
   const { brands, categories, fetchAll } = useCatalogStore();
+  const { fetchAllEntries } = useStockEntryStore();
+
+  const [showNewEntryModal, setShowNewEntryModal] = useState(false);
 
   useEffect(() => {
     fetchLowStockProducts();
@@ -30,29 +32,6 @@ export const LowStockPage: React.FC = () => {
             </h1>
             <p className="text-neutral-600 mt-1">Administra los productos</p>
           </div>
-          {lowStockProducts.length > 0 && (
-            <div className="mt-6 flex justify-end">
-              <Button
-                onClick={() => navigate("products/stock-entries")}
-                className="flex items-center gap-2"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Nueva Entrada
-              </Button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -83,17 +62,26 @@ export const LowStockPage: React.FC = () => {
               description="Todos tus productos tienen suficiente stock."
             />
           ) : (
-            <ProductTable
+            <LowStockTable
               products={lowStockProducts}
               brands={brands}
               categories={categories}
-              onEdit={(product) => navigate(`/products/${product.id}/edit`)}
               laboratories={[]}
               suppliers={[]}
             />
           )}
         </Card>
       </div>
+      {showNewEntryModal && (
+        <NewStockEntryModal
+          onClose={() => setShowNewEntryModal(false)}
+          onSuccess={() => {
+            setShowNewEntryModal(false);
+            fetchAllEntries();
+            fetchLowStockProducts();
+          }}
+        />
+      )}
     </div>
   );
 };
