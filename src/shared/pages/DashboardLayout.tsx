@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/modules/iam/application/stores/auth.store";
+import { useProductStore } from "@/modules/products/application/stores/product.store";
 
 export const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
+  const { lowStockProducts } = useProductStore();
+  const lowStockCount = lowStockProducts.length;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>("productos");
 
@@ -209,6 +212,11 @@ export const DashboardLayout: React.FC = () => {
                       />
                     </svg>
                     Stock Bajo
+                    {lowStockCount > 0 && (
+                      <span className="ml-auto bg-primary-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-none">
+                        {lowStockCount > 99 ? "99+" : lowStockCount}
+                      </span>
+                    )}
                   </NavLink>
 
                   <NavLink
