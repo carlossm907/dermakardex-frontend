@@ -58,12 +58,15 @@ export const CustomerDniInput: React.FC<CustomerDniInputProps> = ({
     debounceRef.current = setTimeout(async () => {
       const result = await dniLookupService.lookupDni(raw);
 
-      if (!result.success) {
-        setDniState("invalid");
-        return;
+      if (result.success && result.fullName) {
+        setDniState("found");
+        onCustomerResolved(result.fullName);
+      } else if (result.success && !result.fullName) {
+        setDniState("found");
+      } else {
+        setDniState("not-found");
+        onCustomerCleared();
       }
-
-      setDniState("found");
     }, 300);
   };
 
@@ -98,7 +101,7 @@ export const CustomerDniInput: React.FC<CustomerDniInputProps> = ({
         />
 
         {/* Indicador de estado */}
-        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
           {dniState === "searching" && (
             <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
           )}
@@ -126,7 +129,7 @@ export const CustomerDniInput: React.FC<CustomerDniInputProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="ml-1 text-neutral-400 hover:text-neutral-600 transition-colors"
+              className="text-neutral-400 hover:text-neutral-600 transition-colors"
             >
               <svg
                 className="w-4 h-4"
@@ -146,7 +149,7 @@ export const CustomerDniInput: React.FC<CustomerDniInputProps> = ({
         </div>
       </div>
 
-      {/* Nombre del cliente */}
+      {/* Nombre del cliente encontrado */}
       {customerFullName && (
         <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
           <svg
@@ -168,28 +171,20 @@ export const CustomerDniInput: React.FC<CustomerDniInputProps> = ({
         </div>
       )}
 
-      {/* Estado de búsqueda */}
+      {/* Buscando... */}
       {dniState === "searching" && (
-        <p className="mt-1.5 text-xs text-blue-600 flex items-center gap-1">
-          <span>Validando DNI...</span>
+        <p className="mt-1.5 text-xs text-blue-600">Buscando nombre...</p>
+      )}
+
+      {/* No encontrado */}
+      {dniState === "not-found" && !error && (
+        <p className="mt-1.5 text-xs text-amber-600">
+          DNI no encontrado en el padrón. Puedes continuar igual.
         </p>
       )}
 
-      {/* Nota informativa */}
-      {dniState === "found" && !customerFullName && (
-        <p className="mt-1.5 text-xs text-neutral-500">
-          El nombre se obtendrá automáticamente al registrar la venta.
-        </p>
-      )}
-
-      {/* Error */}
+      {/* Error de validación del formulario */}
       {error && <p className="mt-1.5 text-xs text-red-600">{error}</p>}
-
-      {dniState === "invalid" && !error && (
-        <p className="mt-1.5 text-xs text-red-600">
-          El DNI ingresado no es válido.
-        </p>
-      )}
 
       {/* Contador */}
       <p className="mt-1 text-xs text-neutral-400 text-right">
