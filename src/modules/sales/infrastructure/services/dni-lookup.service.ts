@@ -29,7 +29,7 @@ class DniLookupService {
 
     try {
       const response = await apiClient.get<{ fullName: string }>(
-        `/sales/dni/${cleanDni}`,
+        `/customers/dni/${cleanDni}`,
       );
 
       const fullName = response.data.fullName;
