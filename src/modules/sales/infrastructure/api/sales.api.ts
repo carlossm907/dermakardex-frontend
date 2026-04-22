@@ -144,14 +144,14 @@ export const salesApi = {
 
   getSalesBySellerId: async (userId: number): Promise<SaleResponse[]> => {
     const response = await apiClient.get<SaleResponse[]>(
-      `/sales/seller/${userId}`,
+      `/sales/by-seller/${userId}`,
     );
     return response.data;
   },
 
   getSalesByProductId: async (productId: number): Promise<SaleResponse[]> => {
     const response = await apiClient.get<SaleResponse[]>(
-      `/sales/product/${productId}`,
+      `/sales/by-product/${productId}`,
     );
     return response.data;
   },
@@ -202,7 +202,7 @@ export const salesApi = {
     month: number,
   ): Promise<SalesTimelineByDayResponse[]> => {
     const response = await apiClient.get<SalesTimelineByDayResponse[]>(
-      `/sales/report/month/timeline/${year}/${month}`,
+      `/sales/report/month/timeline/${year}/${month}/timeline`,
     );
     return response.data;
   },
