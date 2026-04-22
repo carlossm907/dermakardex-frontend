@@ -232,22 +232,24 @@ export const productsApi = {
     return response.data;
   },
 
+  // Discounts
+
   applyDiscountToProduct: async (
     id: number,
     data: ApplyDiscountRequest,
   ): Promise<void> => {
-    await apiClient.post(`/products/${id}/discount`, data);
+    await apiClient.post(`/discounts/${id}`, data);
   },
 
   removeDiscountFromProduct: async (id: number): Promise<void> => {
-    await apiClient.delete(`/products/${id}/discount`);
+    await apiClient.delete(`/discounts/${id}`);
   },
 
   applyDiscountToProducts: async (
     productIds: number[],
     data: ApplyDiscountRequest,
   ): Promise<void> => {
-    await apiClient.post("/products/discounts", {
+    await apiClient.post("/discounts/bulk", {
       productIds,
       type: data.type,
       value: data.value,
@@ -257,25 +259,27 @@ export const productsApi = {
   aplyDiscountToAllProducts: async (
     data: ApplyDiscountRequest,
   ): Promise<void> => {
-    await apiClient.post("/products/discounts/all", data);
+    await apiClient.post("/discounts/all", data);
   },
 
   removeDiscountFromAllProducts: async (): Promise<void> => {
-    await apiClient.delete("/products/discounts/all");
+    await apiClient.delete("/discounts/all");
   },
+
+  // Stock Entries
 
   getProductStockEntries: async (
     productId: number,
   ): Promise<StockEntryResponse[]> => {
     const response = await apiClient.get<StockEntryResponse[]>(
-      `/products/${productId}/entries`,
+      `/product/${productId}/entries`,
     );
     return response.data;
   },
 
   getAllStockEntries: async (): Promise<StockEntryResponse[]> => {
     const response =
-      await apiClient.get<StockEntryResponse[]>("/stock-entries");
+      await apiClient.get<StockEntryResponse[]>("/product/entries");
     return response.data;
   },
 
@@ -429,8 +433,9 @@ export const productsApi = {
 
   //Schduled Discounts
   getAllScheduledDiscounts: async (): Promise<ScheduledDiscountResponse[]> => {
-    const response =
-      await apiClient.get<ScheduledDiscountResponse[]>("/product-discounts");
+    const response = await apiClient.get<ScheduledDiscountResponse[]>(
+      "/products/scheduled-discounts",
+    );
     return response.data;
   },
 
@@ -438,7 +443,7 @@ export const productsApi = {
     ScheduledDiscountResponse[]
   > => {
     const response = await apiClient.get<ScheduledDiscountResponse[]>(
-      "/product-discounts/active",
+      "/products/scheduled-discounts/active",
     );
     return response.data;
   },
@@ -447,7 +452,7 @@ export const productsApi = {
     productId: number,
   ): Promise<ScheduledDiscountResponse[]> => {
     const response = await apiClient.get<ScheduledDiscountResponse[]>(
-      `/product-discounts/product/${productId}`,
+      `/products/${productId}/scheduled-discounts`,
     );
     return response.data;
   },
@@ -456,7 +461,7 @@ export const productsApi = {
     data: ScheduleDiscountRequest,
   ): Promise<ScheduledDiscountResponse> => {
     const response = await apiClient.post<ScheduledDiscountResponse>(
-      "/product-discounts",
+      `/products/scheduled-discounts`,
       data,
     );
     return response.data;
@@ -465,32 +470,32 @@ export const productsApi = {
   createScheduledDiscountToProducts: async (
     data: ScheduleDiscountToProductsRequest,
   ): Promise<void> => {
-    await apiClient.post("/product-discounts/bulk", data);
+    await apiClient.post("/products/scheduled-discounts/bulk", data);
   },
 
   createScheduledDiscountToAllProducts: async (
     data: ScheduleDiscountToAllRequest,
   ): Promise<void> => {
-    await apiClient.post("/product-discounts/all", data);
+    await apiClient.post("/products/scheduled-discounts/all", data);
   },
 
   updateScheduledDiscount: async (
     id: number,
     data: UpdateScheduledDiscountRequest,
   ): Promise<void> => {
-    await apiClient.put(`/product-discounts/${id}`, data);
+    await apiClient.put(`/products/scheduled-discounts/${id}`, data);
   },
 
   deleteScheduledDiscount: async (id: number): Promise<void> => {
-    await apiClient.delete(`/product-discounts/${id}`);
+    await apiClient.delete(`/products/scheduled-discounts/${id}`);
   },
 
   disableScheduledDiscount: async (id: number): Promise<void> => {
-    await apiClient.patch(`/product-discounts/${id}/disable`);
+    await apiClient.patch(`/products/scheduled-discounts/${id}/disable`);
   },
 
   cleanupExpiredScheduledDiscount: async (): Promise<void> => {
-    await apiClient.post("/product-discounts/cleanup-expired");
+    await apiClient.post("/products/scheduled-discounts/cleanup-expired");
   },
 
   // Stock Report
@@ -525,7 +530,7 @@ export const productsApi = {
   ): Promise<StockReportResponse[]> => {
     const queryString = serializeParams({ productIds, from, to });
     const response = await apiClient.get<StockReportResponse[]>(
-      `/products/stock-report/products?${queryString}`,
+      `/products/stock-report/bulk?${queryString}`,
     );
     return response.data;
   },
@@ -549,7 +554,7 @@ export const productsApi = {
     to: string,
   ): Promise<SalesReportResponse[]> => {
     const response = await apiClient.get<SalesReportResponse[]>(
-      `/sales-report/product`,
+      `/products/${productId}/sales-report`,
       { params: { productId, from, to } },
     );
     return response.data;
@@ -562,7 +567,7 @@ export const productsApi = {
   ): Promise<SalesReportResponse[]> => {
     const queryString = serializeParams({ productIds, from, to });
     const response = await apiClient.get<SalesReportResponse[]>(
-      `/sales-report/bulk?${queryString}`,
+      `/products/sales-report/bulk?${queryString}`,
     );
     return response.data;
   },
@@ -572,7 +577,7 @@ export const productsApi = {
     to: string,
   ): Promise<SalesReportResponse[]> => {
     const response = await apiClient.get<SalesReportResponse[]>(
-      `/sales-report/all`,
+      `/products/sales-report`,
       { params: { from, to } },
     );
     return response.data;
@@ -583,7 +588,7 @@ export const productsApi = {
     to: string,
   ): Promise<SalesReportResponse[]> => {
     const response = await apiClient.get<SalesReportResponse[]>(
-      `/sales-report/affected`,
+      `/products/sales-report/affected`,
       { params: { from, to } },
     );
     return response.data;
@@ -597,7 +602,7 @@ export const productsApi = {
     to: string,
   ): Promise<EntriesReportResponse[]> => {
     const response = await apiClient.get<EntriesReportResponse[]>(
-      `/entries-report/product`,
+      `/products/${productId}/entries-report`,
       { params: { productId, from, to } },
     );
     return response.data;
@@ -608,7 +613,7 @@ export const productsApi = {
     to: string,
   ): Promise<EntriesReportResponse[]> => {
     const response = await apiClient.get<EntriesReportResponse[]>(
-      `/entries-report/all`,
+      `/products/entries-report`,
       { params: { from, to } },
     );
     return response.data;
@@ -621,7 +626,7 @@ export const productsApi = {
   ): Promise<EntriesReportResponse[]> => {
     const queryString = serializeParams({ productIds, from, to });
     const response = await apiClient.get<EntriesReportResponse[]>(
-      `/entries-report/bulk?${queryString}`,
+      `/products/entries-report/bulk?${queryString}`,
     );
     return response.data;
   },
@@ -631,7 +636,7 @@ export const productsApi = {
     to: string,
   ): Promise<EntriesReportResponse[]> => {
     const response = await apiClient.get<EntriesReportResponse[]>(
-      `/entries-report/affected`,
+      `/products/entries-report/affected`,
       { params: { from, to } },
     );
     return response.data;
