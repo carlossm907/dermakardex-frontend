@@ -171,7 +171,7 @@ export const CustomerDniInput: React.FC<CustomerDniInputProps> = ({
         </div>
       )}
 
-      {/* Buscando... */}
+      {/* Buscando */}
       {dniState === "searching" && (
         <p className="mt-1.5 text-xs text-blue-600">Buscando nombre...</p>
       )}
