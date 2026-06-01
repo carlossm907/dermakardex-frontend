@@ -77,7 +77,7 @@ export const SaleReportTable: React.FC<SaleReportTableProps> = ({
         </span>
       </div>
 
-      {/* Resumen del período (solo cuando no hay filtro activo) */}
+      {/* Resumen del período */}
       {!nameFilter && (
         <div className="grid grid-cols-2 gap-4">
           <Card className="bg-gradient-to-br from-green-50 to-white">
